@@ -1,3 +1,4 @@
-self.addEventListener('install',e=>{self.skipWaiting();});
-self.addEventListener('activate',e=>{e.waitUntil(clients.claim());});
+const CACHE='tonooz-v1';
+const ASSETS=['/FINANZAS-PERSONALES/','/FINANZAS-PERSONALES/index.html'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));});
 self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});
