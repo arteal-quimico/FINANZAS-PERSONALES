@@ -731,5 +731,11 @@ document.getElementById('btn-add-soc').addEventListener('click',addSocio);
 document.getElementById('np-fecha').value=hoy();
 document.getElementById('cj-fec').value=hoy();
 </script>
+
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
 </body>
 </html>
