@@ -25,47 +25,35 @@
 }
 body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh}
 .app{max-width:1040px;margin:0 auto;padding:14px}
-
-/* LOGIN SCREEN */
 .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px}
 .login-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:40px;text-align:center;max-width:380px;width:90%}
 .login-logo{font-family:'DM Serif Display',serif;font-size:36px;color:var(--gold);margin-bottom:6px}
 .login-sub{color:var(--t2);font-size:13px;margin-bottom:28px}
 .login-form{display:flex;flex-direction:column;gap:12px;text-align:left}
 .login-form label{font-size:11px;color:var(--t3);margin-bottom:4px;display:block}
-
-/* SYNC BAR */
 .sync-bar{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 12px;border-radius:var(--r3);font-size:11px;margin-bottom:12px;background:var(--s1);border:1px solid var(--bd)}
 .sync-left{display:flex;align-items:center;gap:6px}
 .sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .sync-dot.ok{background:var(--green)}.sync-dot.wait{background:var(--orange);animation:p 1s infinite}.sync-dot.err{background:var(--red)}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.3}}
 .btn-logout{background:transparent;border:1px solid var(--bd);border-radius:var(--r3);padding:3px 10px;color:var(--t3);font-size:11px;cursor:pointer}
-
-/* TOPBAR & NAV */
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--bd)}
 .logo{font-family:'DM Serif Display',serif;font-size:22px;color:var(--gold)}
 .logo small{font-size:11px;color:var(--t3);display:block;font-family:'DM Sans',sans-serif}
 .topbar-info{text-align:right;font-size:11px;color:var(--t3)}
 .topbar-info strong{color:var(--gold);font-size:13px;display:block}
-
 .nav{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px;background:var(--s1);padding:6px;border-radius:var(--r);border:1px solid var(--bd)}
 .nb{padding:7px 12px;border-radius:var(--r2);border:none;background:transparent;color:var(--t3);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .15s;white-space:nowrap}
 .nb:hover{color:var(--t2)}.nb.on{background:var(--gold);color:#0d1117;font-weight:600}
-
 .sec{display:none}.sec.on{display:block}
-
-/* METRICS */
 .mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
 .mc{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:14px 12px}
 .mc-l{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);margin-bottom:5px}
 .mc-v{font-family:'DM Serif Display',serif;font-size:22px}
 .mc-v.g{color:var(--green)}.mc-v.r{color:var(--red)}.mc-v.gold{color:var(--gold)}.mc-v.b{color:var(--blue)}
-
 .card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:16px;margin-bottom:12px}
 .card-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .card-tt{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--t3)}
-
-/* TABLES & ACTIONS */
 .tbl-wrap{overflow-x:auto}
 .tbl{width:100%;border-collapse:collapse;font-size:13px}
 .tbl th{text-align:left;padding:7px 8px;font-size:10px;text-transform:uppercase;color:var(--t3);border-bottom:1px solid var(--bd)}
@@ -73,7 +61,6 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
 .btn-icon{padding:6px 10px;border-radius:var(--r3);background:var(--s3);border:1px solid var(--bd);color:var(--t2);cursor:pointer;margin-right:4px;transition:0.2s}
 .btn-icon:hover{border-color:var(--gold);color:var(--gold)}
 .btn-icon.del:hover{border-color:var(--red);color:var(--red)}
-
 .fr{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:flex-end}
 .fg{flex:1;min-width:110px}
 .fi{padding:8px 10px;border:1px solid var(--bd);border-radius:var(--r2);background:var(--s2);color:var(--t1);width:100%}
@@ -81,14 +68,22 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
 .btn{padding:8px 16px;border-radius:var(--r2);border:none;cursor:pointer;font-weight:600}
 .btn-g{background:var(--gold);color:#0d1117}
 .btn-re{background:var(--red);color:#fff}
-
 .empty{text-align:center;padding:28px;color:var(--t3);font-size:13px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:700px){.row2{grid-template-columns:1fr}}
-
 .bk{display:inline-block;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:600}
 .bk-g{background:#0a2e1c;color:var(--green)}
 .bk-r{background:#2e0a0a;color:var(--red)}
+.bk-gold{background:#2a1f00;color:var(--gold)}
+.bk-b{background:#0a1a2e;color:var(--blue)}
+/* MODAL */
+.ov{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:999}
+.ov.open{display:flex}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:var(--r);padding:22px;width:90%;max-width:380px}
+.modal h3{font-family:'DM Serif Display',serif;font-size:18px;color:var(--gold);margin-bottom:12px}
+.modal label{font-size:11px;color:var(--t3);display:block;margin-bottom:4px;margin-top:10px}
+.modal-btns{display:flex;gap:8px;margin-top:16px}
+.modal-btns button{flex:1}
 </style>
 </head>
 <body>
@@ -101,11 +96,11 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
     <div class="login-form">
       <div><label>Correo electrónico</label><input type="email" id="login-email" class="fi" value="antoniooz1991@gmail.com"></div>
       <div><label>Contraseña</label>
-  <div style="position:relative">
-    <input type="password" id="login-pass" class="fi" placeholder="••••••••" style="padding-right:42px">
-    <button type="button" id="toggle-pass" onclick="togglePass()" style="position:absolute;right:0;top:0;height:100%;width:40px;background:transparent;border:none;cursor:pointer;color:#8892b0;font-size:16px;display:flex;align-items:center;justify-content:center">👁</button>
-  </div>
-</div>
+        <div style="position:relative">
+          <input type="password" id="login-pass" class="fi" placeholder="••••••••" style="padding-right:42px">
+          <button type="button" onclick="togglePass()" id="toggle-pass" style="position:absolute;right:0;top:0;height:100%;width:40px;background:transparent;border:none;cursor:pointer;color:#8892b0;font-size:16px">👁</button>
+        </div>
+      </div>
       <button class="btn btn-g" id="btn-login-action" style="width:100%;margin-top:8px">Acceder al Sistema</button>
     </div>
   </div>
@@ -117,12 +112,10 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
     <div class="sync-left"><div class="sync-dot wait" id="sync-dot"></div><span id="sync-txt">Iniciando...</span></div>
     <button class="btn-logout" id="btn-logout-action">Cerrar sesión</button>
   </div>
-
   <div class="topbar">
     <div class="logo">TOÑOOZ <small>Finanzas Personales</small></div>
     <div class="topbar-info"><strong id="top-msg">Bienvenido</strong><span id="top-fecha"></span></div>
   </div>
-
   <div class="nav">
     <button class="nb on" id="nav-resumen">📊 Resumen</button>
     <button class="nb" id="nav-cobros">💰 Cobros</button>
@@ -135,7 +128,6 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
     <button class="nb" id="nav-plan">📅 Plan</button>
   </div>
 
-  <!-- SECCIONES -->
   <div class="sec on" id="sec-resumen">
     <div class="mg" id="res-metrics"></div>
     <div class="row2">
@@ -145,7 +137,7 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
   </div>
 
   <div class="sec" id="sec-cobros">
-    <div class="card"><div class="card-hd"><span class="card-tt">Control de Cobros del Día</span></div><div id="cob-lista"></div></div>
+    <div class="card"><div class="card-hd"><span class="card-tt">Control de Cobros</span></div><div id="cob-lista"></div></div>
   </div>
 
   <div class="sec" id="sec-clientes">
@@ -168,6 +160,17 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
         <div class="fg"><label>Capital ($)</label><input class="fi" type="number" id="np-cap" placeholder="100"></div>
         <div class="fg"><label>Interés de Ganancia ($)</label><input class="fi" type="number" id="np-int" placeholder="10"></div>
         <div class="fg"><label>Nº de Cuotas</label><input class="fi" type="number" id="np-nc" value="11"></div>
+      </div>
+      <!-- NUEVO: frecuencia y fecha -->
+      <div class="fr">
+        <div class="fg"><label>Frecuencia de pago</label>
+          <select class="fi" id="np-frec">
+            <option value="SEMANAL">Semanal (cada 7 días)</option>
+            <option value="QUINCENAL">Quincenal (cada 15 días)</option>
+            <option value="MENSUAL">Mensual (cada mes)</option>
+          </select>
+        </div>
+        <div class="fg"><label>Fecha de inicio</label><input class="fi" type="date" id="np-fecha"></div>
       </div>
       <div class="fr" style="background:var(--s2); padding:10px; border-radius:8px; margin-top:5px">
         <div class="fg"><label style="color:var(--gold)">Cuota sugerida:</label><div id="np-res-cuota" style="font-size:18px; font-weight:600; color:var(--green)">$0.00</div></div>
@@ -240,10 +243,24 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
   </div>
 </div>
 
+<!-- MODAL MOVER FECHA -->
+<div class="ov" id="ov-fecha">
+  <div class="modal">
+    <h3>Mover fecha de cobro</h3>
+    <p style="font-size:12px;color:var(--t2)" id="modal-pre-info"></p>
+    <label>Nueva fecha</label>
+    <input type="date" class="fi" id="modal-nueva-fecha">
+    <div class="modal-btns">
+      <button class="btn btn-g" id="modal-ok">Confirmar</button>
+      <button class="btn" style="background:var(--s2);color:var(--t2);border:1px solid var(--bd)" onclick="document.getElementById('ov-fecha').classList.remove('open')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 function togglePass(){
-  const inp = document.getElementById('login-pass');
-  const btn = document.getElementById('toggle-pass');
+  var inp = document.getElementById('login-pass');
+  var btn = document.getElementById('toggle-pass');
   if(inp.type === 'password'){inp.type='text';btn.textContent='🙈';}
   else{inp.type='password';btn.textContent='👁';}
 }
@@ -271,9 +288,30 @@ const DOC_REF = doc(db, 'artifacts', appId, 'public', 'data', 'finanzas', 'princ
 let S = { clientes:[], prestamos:[], movimientos:[], socios:[], deudas:[], inversiones:[], plan:{ing:0, gas:0} };
 let unsub = null;
 
-// --- EXPOSICIÓN GLOBAL DE FUNCIONES PARA EL ONCLICK ---
 function expose(name, fn) { window[name] = fn; }
 
+// ── UTILIDADES ─────────────────────────────────
+const $m = n => '$'+(+n||0).toFixed(2);
+const hoy = () => new Date().toISOString().slice(0,10);
+const HOY_MS = new Date().setHours(0,0,0,0);
+function diffDias(f){ if(!f) return 999; return Math.round((new Date(f+'T00:00:00').setHours(0,0,0,0)-HOY_MS)/86400000); }
+function proxFecha(p){
+  var i = (p.pagos||[]).length;
+  if(p.fechas && p.fechas[i]) return p.fechas[i];
+  return null;
+}
+function generarFechas(fi, frec, nc){
+  var fechas = []; var d = new Date(fi+'T12:00:00');
+  for(var i=0;i<nc;i++){
+    if(frec==='SEMANAL') d = new Date(d.getTime()+7*86400000);
+    else if(frec==='QUINCENAL') d = new Date(d.getTime()+15*86400000);
+    else { d = new Date(d); d.setMonth(d.getMonth()+1); }
+    fechas.push(d.toISOString().slice(0,10));
+  }
+  return fechas;
+}
+
+// ── NAV ─────────────────────────────────────────
 expose('nav', (id, btn) => {
   document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
   const target = document.getElementById('sec-' + id);
@@ -291,7 +329,7 @@ expose('calcCuota', () => {
   document.getElementById('np-res-total').textContent = $m(total);
 });
 
-// CRUD CLIENTES
+// ── CLIENTES ────────────────────────────────────
 expose('addCliente', async () => {
   const n = document.getElementById('cl-nom').value.trim(); if(!n) return;
   S.clientes.push({ id: createId(), nom: n, tel: document.getElementById('cl-tel').value });
@@ -299,27 +337,29 @@ expose('addCliente', async () => {
   await push();
 });
 expose('editCli', async id => {
-  const c = S.clientes.find(x => x.id == id);
-  if(!c) return;
+  const c = S.clientes.find(x => x.id == id); if(!c) return;
   const n = prompt("Nuevo nombre:", c.nom); if(n) c.nom=n;
-  const t = prompt("Nuevo WhatsApp:", c.tel); if(t) c.tel=t;
+  const t = prompt("Nuevo WhatsApp:", c.tel); if(t!==null) c.tel=t;
   await push();
 });
 expose('delCli', async id => {
   if(confirm("¿Eliminar cliente?")) { S.clientes = S.clientes.filter(x => x.id != id); await push(); }
 });
 
-// CRUD PRESTAMOS
+// ── PRÉSTAMOS ────────────────────────────────────
 expose('addPrestamo', async () => {
   const cid = document.getElementById('np-cli').value;
   const cap = parseFloat(document.getElementById('np-cap').value);
-  const int = parseFloat(document.getElementById('np-int').value);
-  const nc = parseInt(document.getElementById('np-nc').value);
+  const int = parseFloat(document.getElementById('np-int').value) || 0;
+  const nc = parseInt(document.getElementById('np-nc').value) || 11;
+  const frec = document.getElementById('np-frec').value;
+  const fi = document.getElementById('np-fecha').value || hoy();
   if(!cid || isNaN(cap)) return;
   const cuo = (cap + int) / nc;
   const cli = S.clientes.find(x => x.id == cid);
-  S.prestamos.push({ id: createId(), cid, cap, int, cuo, nc, pagos:[] });
-  registrarCaja(`Préstamo a ${cli.nom}`, cap, 'salida');
+  const fechas = generarFechas(fi, frec, nc);
+  S.prestamos.push({ id: createId(), cid, cap, int, cuo, nc, frec, fi, fechas, pagos:[] });
+  registrarCaja('Prestamo a ' + (cli?cli.nom:''), cap, 'salida');
   ['np-cap','np-int'].forEach(i => document.getElementById(i).value = '');
   await push();
 });
@@ -327,11 +367,10 @@ expose('delPre', async id => {
   if(confirm("¿Eliminar préstamo?")) { S.prestamos = S.prestamos.filter(x => x.id != id); await push(); }
 });
 expose('editPre', async id => {
-  const p = S.prestamos.find(x => x.id == id);
-  if(!p) return;
+  const p = S.prestamos.find(x => x.id == id); if(!p) return;
   const c = prompt("Nuevo Capital:", p.cap); if(c) p.cap = parseFloat(c);
-  const i = prompt("Nuevo Interés:", p.int); if(i) p.int = parseFloat(i);
-  p.cuo = (p.cap + p.int) / p.nc;
+  const i = prompt("Nuevo Interés:", p.int||0); if(i!==null) p.int = parseFloat(i)||0;
+  p.cuo = (p.cap + (p.int||0)) / p.nc;
   await push();
 });
 expose('cobrar', async id => {
@@ -339,11 +378,33 @@ expose('cobrar', async id => {
   const c = S.clientes.find(x => x.id == p.cid);
   if(!p.pagos) p.pagos = [];
   p.pagos.push(hoy());
-  registrarCaja(`Cobro cuota: ${c.nom}`, p.cuo, 'entrada');
+  registrarCaja('Cobro cuota: ' + (c?c.nom:''), p.cuo, 'entrada');
   await push();
 });
 
-// CRUD CAJA
+// ── MOVER FECHA ──────────────────────────────────
+expose('abrirMoverFecha', function(id){
+  const p = S.prestamos.find(x => x.id == id);
+  const c = S.clientes.find(x => x.id == p.cid);
+  const i = (p.pagos||[]).length;
+  const fechaActual = proxFecha(p) || '';
+  document.getElementById('modal-pre-info').textContent = (c?c.nom:'') + ' — Cuota ' + (i+1) + ' de ' + p.nc + ' — Fecha actual: ' + (fechaActual||'no definida');
+  document.getElementById('modal-nueva-fecha').value = fechaActual;
+  document.getElementById('ov-fecha').classList.add('open');
+  document.getElementById('modal-ok').onclick = async function(){
+    const nf = document.getElementById('modal-nueva-fecha').value;
+    if(!nf){ alert('Selecciona una fecha'); return; }
+    if(!p.fechas) p.fechas = generarFechas(p.fi||hoy(), p.frec||'SEMANAL', p.nc);
+    p.fechas[i] = nf;
+    await push();
+    document.getElementById('ov-fecha').classList.remove('open');
+  };
+});
+document.getElementById('ov-fecha').addEventListener('click', function(e){
+  if(e.target === this) this.classList.remove('open');
+});
+
+// ── CAJA ─────────────────────────────────────────
 expose('addMovManual', async t => {
   const c = document.getElementById('cj-con').value;
   const m = parseFloat(document.getElementById('cj-mon').value);
@@ -353,8 +414,7 @@ expose('addMovManual', async t => {
   await push();
 });
 expose('editMov', async id => {
-  const m = S.movimientos.find(x => x.id == id);
-  if(!m) return;
+  const m = S.movimientos.find(x => x.id == id); if(!m) return;
   const n = prompt("Nuevo concepto:", m.con); if(n) m.con=n;
   const v = prompt("Nuevo monto:", m.mon); if(v) m.mon=parseFloat(v);
   await push();
@@ -363,19 +423,18 @@ expose('delMov', async id => {
   if(confirm("¿Borrar de caja?")) { S.movimientos = S.movimientos.filter(x => x.id != id); await push(); }
 });
 
-// CRUD SOCIOS
+// ── SOCIOS ───────────────────────────────────────
 expose('addSocio', async () => {
   const n = document.getElementById('soc-nom').value;
   const m = parseFloat(document.getElementById('soc-mon').value);
   if(!n || isNaN(m)) return;
   S.socios.push({ id: createId(), nom: n, mon: m });
-  registrarCaja(`Cap. Socio: ${n}`, m, 'entrada');
+  registrarCaja('Cap. Socio: ' + n, m, 'entrada');
   document.getElementById('soc-nom').value = ''; document.getElementById('soc-mon').value = '';
   await push();
 });
 expose('editSoc', async id => {
-  const s = S.socios.find(x => x.id == id);
-  if(!s) return;
+  const s = S.socios.find(x => x.id == id); if(!s) return;
   const n = prompt("Nombre:", s.nom); if(n) s.nom=n;
   const v = prompt("Monto:", s.mon); if(v) s.mon=parseFloat(v);
   await push();
@@ -384,7 +443,7 @@ expose('delSoc', async id => {
   if(confirm("¿Eliminar socio?")) { S.socios = S.socios.filter(x => x.id != id); await push(); }
 });
 
-// CRUD DEUDAS
+// ── DEUDAS ───────────────────────────────────────
 expose('addDeuda', async () => {
   const n = document.getElementById('deu-nom').value;
   const p = parseFloat(document.getElementById('deu-pen').value);
@@ -394,8 +453,7 @@ expose('addDeuda', async () => {
   await push();
 });
 expose('editDeu', async id => {
-  const d = S.deudas.find(x => x.id == id);
-  if(!d) return;
+  const d = S.deudas.find(x => x.id == id); if(!d) return;
   const n = prompt("Acreedor:", d.nom); if(n) d.nom=n;
   const v = prompt("Saldo:", d.pen); if(v) d.pen=parseFloat(v);
   await push();
@@ -405,23 +463,22 @@ expose('delDeu', async id => {
 });
 expose('abonarDeuda', async id => {
   const d = S.deudas.find(x => x.id == id);
-  const m = parseFloat(prompt(`¿Abonar a ${d.nom}?`, "0"));
-  if(m){ d.pen -= m; registrarCaja(`Pago Deuda: ${d.nom}`, m, 'salida'); await push(); }
+  const m = parseFloat(prompt('¿Abonar a ' + d.nom + '?', "0"));
+  if(m){ d.pen -= m; registrarCaja('Pago Deuda: ' + d.nom, m, 'salida'); await push(); }
 });
 
-// CRUD INVERSIONES
+// ── INVERSIONES ──────────────────────────────────
 expose('addInversion', async () => {
   const n = document.getElementById('inv-nom').value;
   const c = parseFloat(document.getElementById('inv-cap').value);
   if(!n || isNaN(c)) return;
   S.inversiones.push({ id: createId(), nom: n, cap: c });
-  registrarCaja(`Inversión: ${n}`, c, 'salida');
+  registrarCaja('Inversión: ' + n, c, 'salida');
   document.getElementById('inv-nom').value = ''; document.getElementById('inv-cap').value = '';
   await push();
 });
 expose('editInv', async id => {
-  const i = S.inversiones.find(x => x.id == id);
-  if(!i) return;
+  const i = S.inversiones.find(x => x.id == id); if(!i) return;
   const n = prompt("Activo:", i.nom); if(n) i.nom=n;
   const v = prompt("Monto:", i.cap); if(v) i.cap=parseFloat(v);
   await push();
@@ -435,13 +492,12 @@ expose('savePlan', async () => {
   await push();
 });
 
-// --- FIREBASE LOGIC ---
+// ── FIREBASE ─────────────────────────────────────
 document.getElementById('btn-login-action').addEventListener('click', async () => {
   const e = document.getElementById('login-email').value;
   const p = document.getElementById('login-pass').value;
-  try {
-    await signInWithEmailAndPassword(auth, e, p);
-  } catch(err) { alert("Acceso denegado."); }
+  try { await signInWithEmailAndPassword(auth, e, p); }
+  catch(err) { alert("Acceso denegado. Verifica tu correo y contraseña."); }
 });
 document.getElementById('btn-logout-action').addEventListener('click', () => { if(unsub) unsub(); signOut(auth); });
 
@@ -463,29 +519,27 @@ function load(){
   getDoc(DOC_REF).then(snap => {
     if(!snap.exists()) setDoc(DOC_REF, S);
     unsub = onSnapshot(DOC_REF, d => {
-      if(d.exists()){ 
-        S = d.data(); 
+      if(d.exists()){
+        S = d.data();
         let fixed = false;
-        ['movimientos', 'clientes', 'prestamos', 'socios', 'deudas', 'inversiones'].forEach(k => {
-          if(S[k]) S[k].forEach(item => { if(!item.id) { item.id = createId(); fixed = true; } });
+        ['movimientos','clientes','prestamos','socios','deudas','inversiones'].forEach(k => {
+          if(S[k]) S[k].forEach(item => { if(!item.id){ item.id = createId(); fixed = true; } });
         });
         if(fixed) setDoc(DOC_REF, S);
-        render(); 
-        setSync('ok', 'Sincronizado ✓'); 
+        render();
+        setSync('ok', 'Sincronizado ✓');
       }
     });
   });
 }
 
-function setSync(c, m){ 
+function setSync(c, m){
   const d = document.getElementById('sync-dot');
   const t = document.getElementById('sync-txt');
-  if(d) d.className = 'sync-dot ' + c; 
+  if(d) d.className = 'sync-dot ' + c;
   if(t) t.textContent = m;
 }
 
-const $m = n => '$'+(+n||0).toFixed(2);
-const hoy = () => new Date().toISOString().slice(0,10);
 async function push(){ await setDoc(DOC_REF, S); }
 
 function registrarCaja(con, mon, tipo){
@@ -493,62 +547,161 @@ function registrarCaja(con, mon, tipo){
   S.movimientos.push({ id: createId(), fec: hoy(), con, mon: Math.abs(mon), tipo });
 }
 
-// --- RENDERIZADO ---
+// ── RENDER ───────────────────────────────────────
 function render(){
   document.getElementById('top-fecha').textContent = new Date().toLocaleDateString('es-EC',{weekday:'long',day:'numeric',month:'long'});
-  
+
   const ent = (S.movimientos||[]).filter(m=>m.tipo==='entrada').reduce((a,m)=>a+m.mon,0);
   const sal = (S.movimientos||[]).filter(m=>m.tipo==='salida').reduce((a,m)=>a+m.mon,0);
   const caja = ent - sal;
   const deudas = (S.deudas||[]).reduce((a,d)=>a+d.pen,0);
-  const calle = (S.prestamos||[]).reduce((a,p)=>a + (p.cuo*p.nc - ((p.pagos||[]).length*p.cuo)), 0);
+  const calle = (S.prestamos||[]).reduce((a,p)=>a + Math.max(0, p.cuo*p.nc - ((p.pagos||[]).length*p.cuo)), 0);
 
-  document.getElementById('res-metrics').innerHTML = `
-    <div class="mc"><div class="mc-l">Caja Real</div><div class="mc-v g">${$m(caja)}</div></div>
-    <div class="mc"><div class="mc-l">En Calle</div><div class="mc-v gold">${$m(calle)}</div></div>
-    <div class="mc"><div class="mc-l">Tus Deudas</div><div class="mc-v r">${$m(deudas)}</div></div>
-  `;
+  document.getElementById('res-metrics').innerHTML =
+    '<div class="mc"><div class="mc-l">Caja Real</div><div class="mc-v g">'+$m(caja)+'</div></div>'+
+    '<div class="mc"><div class="mc-l">En Calle</div><div class="mc-v gold">'+$m(calle)+'</div></div>'+
+    '<div class="mc"><div class="mc-l">Tus Deudas</div><div class="mc-v r">'+$m(deudas)+'</div></div>';
 
-  // Clientes
+  // Resumen cobros próximos
+  var proximos = (S.prestamos||[]).filter(p=>(p.pagos||[]).length<p.nc).map(p=>{
+    return { p, pf: proxFecha(p), dd: diffDias(proxFecha(p)) };
+  }).filter(x=>x.dd<=7).sort((a,b)=>a.dd-b.dd);
+  document.getElementById('res-cobros').innerHTML = proximos.length ? proximos.map(function(x){
+    var c = (S.clientes||[]).find(function(cl){return cl.id==x.p.cid;});
+    var badge = x.dd<0?'<span class="bk bk-r">'+Math.abs(x.dd)+'d atraso</span>':x.dd===0?'<span class="bk bk-gold">HOY</span>':'<span class="bk bk-b">en '+x.dd+'d</span>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)">'+
+      '<div><span style="font-weight:500">'+(c?c.nom:'?')+'</span> '+badge+'</div>'+
+      '<span style="color:var(--gold);font-weight:600">'+$m(x.p.cuo)+'</span></div>';
+  }).join('') : '<div class="empty">Sin cobros próximos</div>';
+
+  // Resumen caja
+  document.getElementById('res-caja').innerHTML = (S.movimientos||[]).slice().reverse().slice(0,5).map(function(m){
+    return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bd)">'+
+      '<span style="font-size:12px;color:var(--t2)">'+m.con+'</span>'+
+      '<span style="font-size:12px;font-weight:500;color:'+(m.tipo==='entrada'?'var(--green)':'var(--red)')+';">'+(m.tipo==='entrada'?'+':'-')+$m(m.mon)+'</span></div>';
+  }).join('') || '<div class="empty">Sin movimientos</div>';
+
+  // Selector clientes
   const sel = document.getElementById('np-cli');
-  sel.innerHTML = '<option value="">- Seleccionar -</option>' + (S.clientes||[]).map(c=>`<option value="${c.id}">${c.nom}</option>`).join('');
-  document.getElementById('tbl-cli').innerHTML = `<thead><tr><th>Nombre</th><th>Telf</th><th>Acciones</th></tr></thead><tbody>${(S.clientes||[]).map(c=>`<tr><td>${c.nom}</td><td>${c.tel||'—'}</td><td><button class="btn-icon" onclick="editCli('${c.id}')">✏️</button><button class="btn-icon del" onclick="delCli('${c.id}')">🗑️</button></td></tr>`).join('')}</tbody>`;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">- Seleccionar -</option>' + (S.clientes||[]).map(c=>'<option value="'+c.id+'"'+(c.id==cur?' selected':'')+'>'+c.nom+'</option>').join('');
 
-  // Préstamos
-  document.getElementById('tbl-pre').innerHTML = `<thead><tr><th>Cliente</th><th>Total</th><th>Cuotas</th><th>Saldo</th><th>Acción</th></tr></thead><tbody>${(S.prestamos||[]).map(p=>{
-    const c = S.clientes.find(x=>x.id==p.cid);
-    const saldo = (p.cuo*p.nc) - ((p.pagos||[]).length*p.cuo);
-    return `<tr><td>${c?.nom}</td><td>${$m(p.cap + p.int)}</td><td>${p.pagos?.length||0}/${p.nc}</td><td style="color:var(--green)">${$m(saldo)}</td><td><button class="btn-icon edit" onclick="editPre('${p.id}')">✏️</button><button class="btn-icon del" onclick="delPre('${p.id}')">🗑️</button></td></tr>`;
-  }).join('')}</tbody>`;
+  // Tabla clientes
+  document.getElementById('tbl-cli').innerHTML =
+    '<thead><tr><th>Nombre</th><th>Telf</th><th>Acciones</th></tr></thead><tbody>'+
+    (S.clientes||[]).map(function(c){
+      return '<tr><td>'+c.nom+'</td><td>'+(c.tel||'—')+'</td><td>'+
+        '<button class="btn-icon" onclick="editCli(\''+c.id+'\')">✏️</button>'+
+        '<button class="btn-icon del" onclick="delCli(\''+c.id+'\')">🗑️</button></td></tr>';
+    }).join('')+'</tbody>';
+
+  // Tabla préstamos
+  document.getElementById('tbl-pre').innerHTML =
+    '<thead><tr><th>Cliente</th><th>Capital</th><th>Interés</th><th>Cuota</th><th>Frecuencia</th><th>Pagos</th><th>Saldo</th><th>Próx. cobro</th><th>Acciones</th></tr></thead><tbody>'+
+    (S.prestamos||[]).map(function(p){
+      var c = (S.clientes||[]).find(function(x){return x.id==p.cid;});
+      var saldo = Math.max(0,(p.cuo*p.nc)-((p.pagos||[]).length*p.cuo));
+      var pf = proxFecha(p);
+      var dd = diffDias(pf);
+      var badge = saldo<=0?'<span class="bk bk-g">Listo</span>':!pf?'—':dd<0?'<span class="bk bk-r">'+Math.abs(dd)+'d</span>':dd===0?'<span class="bk bk-gold">HOY</span>':'<span class="bk bk-b">'+dd+'d</span>';
+      return '<tr>'+
+        '<td style="font-weight:500">'+(c?c.nom:'?')+'</td>'+
+        '<td>'+$m(p.cap)+'</td>'+
+        '<td style="color:var(--gold)">'+$m(p.int||0)+'</td>'+
+        '<td>'+$m(p.cuo)+'</td>'+
+        '<td style="font-size:11px;color:var(--t2)">'+(p.frec||'—')+'</td>'+
+        '<td>'+((p.pagos||[]).length)+'/'+p.nc+'</td>'+
+        '<td style="color:var(--green)">'+$m(saldo)+'</td>'+
+        '<td>'+(pf?pf:'—')+' '+badge+'</td>'+
+        '<td>'+
+          '<button class="btn-icon" onclick="cobrar(\''+p.id+'\')" title="Cobrar cuota">✓</button>'+
+          '<button class="btn-icon" onclick="abrirMoverFecha(\''+p.id+'\')" title="Mover fecha">📅</button>'+
+          '<button class="btn-icon" onclick="editPre(\''+p.id+'\')" title="Editar">✏️</button>'+
+          '<button class="btn-icon del" onclick="delPre(\''+p.id+'\')" title="Eliminar">🗑️</button>'+
+        '</td></tr>';
+    }).join('')+'</tbody>';
 
   // Cobros
-  const pends = (S.prestamos||[]).filter(p => (p.pagos?.length||0) < p.nc);
-  document.getElementById('cob-lista').innerHTML = pends.length ? pends.map(p => {
-    const c = S.clientes.find(x=>x.id==p.cid);
-    return `<div class="ci" style="display:flex;justify-content:space-between;padding:12px;border:1px solid var(--bd);margin-bottom:8px;border-radius:8px;background:var(--s2)">
-      <div><strong>${c?.nom}</strong><br><small>Cuota ${p.pagos?.length+1} de ${p.nc}</small></div>
-      <div style="text-align:right"><div style="color:var(--gold);font-weight:600">${$m(p.cuo)}</div><button class="btn" style="background:var(--green);color:#000;font-size:11px;padding:6px 10px;margin-top:4px" onclick="cobrar('${p.id}')">Cobrar</button></div>
-    </div>`;
+  var pends = (S.prestamos||[]).filter(function(p){return (p.pagos?p.pagos.length:0)<p.nc;});
+  pends.sort(function(a,b){return diffDias(proxFecha(a))-diffDias(proxFecha(b));});
+  document.getElementById('cob-lista').innerHTML = pends.length ? pends.map(function(p){
+    var c = (S.clientes||[]).find(function(x){return x.id==p.cid;});
+    var pf = proxFecha(p);
+    var dd = diffDias(pf);
+    var border = dd<0?'var(--red)':dd===0?'var(--gold)':'var(--bd)';
+    var badge = !pf?'':dd<0?'<span class="bk bk-r">'+Math.abs(dd)+'d atraso</span>':dd===0?'<span class="bk bk-gold">HOY</span>':'<span class="bk bk-b">en '+dd+'d</span>';
+    var waBtn = (c&&c.tel)?'<button onclick="waCobro(\''+p.id+'\')" style="background:#25D366;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;margin-left:4px">📲 WA</button>':'';
+    var moverBtn = '<button onclick="abrirMoverFecha(\''+p.id+'\')" style="background:var(--s3);color:var(--t2);border:1px solid var(--bd);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;margin-left:4px">📅 Mover</button>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid '+border+';margin-bottom:8px;border-radius:8px;background:var(--s2)">'+
+      '<div><strong>'+(c?c.nom:'?')+'</strong> '+badge+'<br>'+
+      '<small style="color:var(--t2)">Cuota '+((p.pagos?p.pagos.length:0)+1)+' de '+p.nc+(p.frec?' · '+p.frec:'')+(pf?' · '+pf:'')+'</small></div>'+
+      '<div style="text-align:right">'+
+        '<div style="color:var(--gold);font-weight:600;font-size:18px">'+$m(p.cuo)+'</div>'+
+        '<div style="margin-top:6px">'+
+          '<button class="btn" style="background:var(--green);color:#000;font-size:11px;padding:6px 10px" onclick="cobrar(\''+p.id+'\')">✓ Cobrar</button>'+
+          waBtn+moverBtn+
+        '</div>'+
+      '</div></div>';
   }).join('') : '<div class="empty">No hay cobros pendientes</div>';
 
   // Caja
-  document.getElementById('tbl-caj').innerHTML = `<thead><tr><th>Concepto</th><th>Monto</th><th>Tipo</th><th>Acción</th></tr></thead><tbody>${(S.movimientos||[]).slice().reverse().slice(0,10).map(m=>`<tr><td>${m.con}</td><td>${$m(m.mon)}</td><td><span class="bk ${m.tipo==='entrada'?'bk-g':'bk-r'}">${m.tipo}</span></td><td><button class="btn-icon" onclick="editMov('${m.id}')">✏️</button><button class="btn-icon del" onclick="delMov('${m.id}')">🗑️</button></td></tr>`).join('')}</tbody>`;
+  document.getElementById('tbl-caj').innerHTML =
+    '<thead><tr><th>Concepto</th><th>Monto</th><th>Tipo</th><th>Acción</th></tr></thead><tbody>'+
+    (S.movimientos||[]).slice().reverse().slice(0,15).map(function(m){
+      return '<tr><td>'+m.con+'</td><td>'+$m(m.mon)+'</td>'+
+        '<td><span class="bk '+(m.tipo==='entrada'?'bk-g':'bk-r')+'">'+m.tipo+'</span></td>'+
+        '<td><button class="btn-icon" onclick="editMov(\''+m.id+'\')">✏️</button>'+
+        '<button class="btn-icon del" onclick="delMov(\''+m.id+'\')">🗑️</button></td></tr>';
+    }).join('')+'</tbody>';
 
   // Socios
-  document.getElementById('tbl-soc').innerHTML = `<thead><tr><th>Socio</th><th>Monto</th><th>Acción</th></tr></thead><tbody>${(S.socios||[]).map(s=>`<tr><td>${s.nom}</td><td>${$m(s.mon)}</td><td><button class="btn-icon" onclick="editSoc('${s.id}')">✏️</button><button class="btn-icon del" onclick="delSoc('${s.id}')">🗑️</button></td></tr>`).join('')}</tbody>`;
+  document.getElementById('tbl-soc').innerHTML =
+    '<thead><tr><th>Socio</th><th>Monto</th><th>Acción</th></tr></thead><tbody>'+
+    (S.socios||[]).map(function(s){
+      return '<tr><td>'+s.nom+'</td><td>'+$m(s.mon)+'</td>'+
+        '<td><button class="btn-icon" onclick="editSoc(\''+s.id+'\')">✏️</button>'+
+        '<button class="btn-icon del" onclick="delSoc(\''+s.id+'\')">🗑️</button></td></tr>';
+    }).join('')+'</tbody>';
 
   // Deudas
-  document.getElementById('tbl-deu').innerHTML = `<thead><tr><th>Acreedor</th><th>Saldo</th><th>Acción</th></tr></thead><tbody>${(S.deudas||[]).map(d=>`<tr><td>${d.nom}</td><td style="color:var(--red)">${$m(d.pen)}</td><td><button class="btn" style="background:var(--s3);color:var(--t1);font-size:10px" onclick="abonarDeuda('${d.id}')">Abonar</button><button class="btn-icon edit" onclick="editDeu('${d.id}')">✏️</button><button class="btn-icon del" onclick="delDeu('${d.id}')">🗑️</button></td></tr>`).join('')}</tbody>`;
+  document.getElementById('tbl-deu').innerHTML =
+    '<thead><tr><th>Acreedor</th><th>Saldo</th><th>Acción</th></tr></thead><tbody>'+
+    (S.deudas||[]).map(function(d){
+      return '<tr><td>'+d.nom+'</td><td style="color:var(--red)">'+$m(d.pen)+'</td>'+
+        '<td><button class="btn" style="background:var(--s3);color:var(--t1);font-size:10px" onclick="abonarDeuda(\''+d.id+'\')">Abonar</button>'+
+        '<button class="btn-icon edit" onclick="editDeu(\''+d.id+'\')">✏️</button>'+
+        '<button class="btn-icon del" onclick="delDeu(\''+d.id+'\')">🗑️</button></td></tr>';
+    }).join('')+'</tbody>';
 
   // Inversiones
-  document.getElementById('tbl-inv').innerHTML = `<thead><tr><th>Activo</th><th>Monto</th><th>Acción</th></tr></thead><tbody>${(S.inversiones||[]).map(i=>`<tr><td>${i.nom}</td><td>${$m(i.cap)}</td><td><button class="btn-icon" onclick="editInv('${i.id}')">✏️</button><button class="btn-icon del" onclick="delInv('${i.id}')">🗑️</button></td></tr>`).join('')}</tbody>`;
+  document.getElementById('tbl-inv').innerHTML =
+    '<thead><tr><th>Activo</th><th>Monto</th><th>Acción</th></tr></thead><tbody>'+
+    (S.inversiones||[]).map(function(i){
+      return '<tr><td>'+i.nom+'</td><td>'+$m(i.cap)+'</td>'+
+        '<td><button class="btn-icon" onclick="editInv(\''+i.id+'\')">✏️</button>'+
+        '<button class="btn-icon del" onclick="delInv(\''+i.id+'\')">🗑️</button></td></tr>';
+    }).join('')+'</tbody>';
 
   // Plan
-  const disp = (S.plan?.ing||0) - (S.plan?.gas||0);
-  document.getElementById('pla-res').innerHTML = `<div style="padding:15px;background:var(--s2);border-radius:8px;border:1px solid var(--bd)"><div style="display:flex;justify-content:space-between"><span>Disponible:</span><strong style="color:${disp>=0?'var(--green)':'var(--red)'}">${$m(disp)}</strong></div></div>`;
+  const disp = (S.plan&&S.plan.ing?S.plan.ing:0) - (S.plan&&S.plan.gas?S.plan.gas:0);
+  document.getElementById('pla-res').innerHTML =
+    '<div style="padding:15px;background:var(--s2);border-radius:8px;border:1px solid var(--bd)">'+
+    '<div style="display:flex;justify-content:space-between"><span>Disponible:</span>'+
+    '<strong style="color:'+(disp>=0?'var(--green)':'var(--red)')+'">'+$m(disp)+'</strong></div></div>';
 }
 
-// --- EVENT LISTENERS DIRECTOS ---
+// ── WHATSAPP ─────────────────────────────────────
+expose('waCobro', function(id){
+  var p = (S.prestamos||[]).find(function(x){return x.id==id;});
+  var c = (S.clientes||[]).find(function(x){return x.id==p.cid;});
+  if(!c||!c.tel){alert('Sin teléfono registrado. Edita el cliente primero.');return;}
+  var tel = c.tel.replace(/\D/g,'');
+  var pf = proxFecha(p)||'';
+  var msg = 'Hola '+c.nom+', le recuerdo su cuota de *$'+p.cuo.toFixed(2)+'*'+(pf?' con fecha *'+pf+'*':'')+'. Por favor coordinar el pago. Gracias!';
+  window.open('https://wa.me/593'+tel.replace(/^0/,'')+'?text='+encodeURIComponent(msg),'_blank');
+});
+
+// ── EVENT LISTENERS ──────────────────────────────
 document.getElementById('nav-resumen').addEventListener('click', function() { nav('resumen', this); });
 document.getElementById('nav-cobros').addEventListener('click', function() { nav('cobros', this); });
 document.getElementById('nav-clientes').addEventListener('click', function() { nav('clientes', this); });
@@ -568,7 +721,7 @@ document.getElementById('btn-add-deu').addEventListener('click', addDeuda);
 document.getElementById('btn-add-inv').addEventListener('click', addInversion);
 document.getElementById('btn-save-plan').addEventListener('click', savePlan);
 
-document.querySelectorAll('input[type="date"]').forEach(i => i.value = hoy());
+document.getElementById('np-fecha').value = hoy();
 </script>
 </body>
 </html>
