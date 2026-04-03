@@ -169,6 +169,10 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
         <div class="fg"><label>Interés de Ganancia ($)</label><input class="fi" type="number" id="np-int" placeholder="10"></div>
         <div class="fg"><label>Nº de Cuotas</label><input class="fi" type="number" id="np-nc" value="11"></div>
       </div>
+      <div class="fr">
+        <div class="fg"><label>Frecuencia</label><select class="fi" id="np-frec"><option value="SEMANAL">Semanal</option><option value="QUINCENAL">Quincenal</option><option value="MENSUAL">Mensual</option></select></div>
+        <div class="fg"><label>Fecha inicio</label><input class="fi" type="date" id="np-fecha"></div>
+      </div>
       <div class="fr" style="background:var(--s2); padding:10px; border-radius:8px; margin-top:5px">
         <div class="fg"><label style="color:var(--gold)">Cuota sugerida:</label><div id="np-res-cuota" style="font-size:18px; font-weight:600; color:var(--green)">$0.00</div></div>
         <div class="fg"><label>Total a Cobrar:</label><div id="np-res-total" style="font-size:18px; font-weight:600">$0.00</div></div>
@@ -313,13 +317,23 @@ expose('delCli', async id => {
 expose('addPrestamo', async () => {
   const cid = document.getElementById('np-cli').value;
   const cap = parseFloat(document.getElementById('np-cap').value);
-  const int = parseFloat(document.getElementById('np-int').value);
-  const nc = parseInt(document.getElementById('np-nc').value);
+  const int = parseFloat(document.getElementById('np-int').value) || 0;
+  const nc = parseInt(document.getElementById('np-nc').value) || 11;
+  const frec = document.getElementById('np-frec') ? document.getElementById('np-frec').value : 'SEMANAL';
+  const fi = document.getElementById('np-fecha') ? (document.getElementById('np-fecha').value || hoy()) : hoy();
   if(!cid || isNaN(cap)) return;
   const cuo = (cap + int) / nc;
   const cli = S.clientes.find(x => x.id == cid);
-  S.prestamos.push({ id: createId(), cid, cap, int, cuo, nc, pagos:[] });
-  registrarCaja(`Préstamo a ${cli.nom}`, cap, 'salida');
+  const fechas = [];
+  let d = new Date(fi + 'T12:00:00');
+  for(let i = 0; i < nc; i++){
+    if(frec === 'SEMANAL') d = new Date(d.getTime() + 7*86400000);
+    else if(frec === 'QUINCENAL') d = new Date(d.getTime() + 15*86400000);
+    else { d = new Date(d); d.setMonth(d.getMonth() + 1); }
+    fechas.push(d.toISOString().slice(0,10));
+  }
+  S.prestamos.push({ id: createId(), cid, cap, int, cuo, nc, frec, fi, fechas, pagos:[] });
+  registrarCaja('Prestamo a ' + cli.nom, cap, 'salida');
   ['np-cap','np-int'].forEach(i => document.getElementById(i).value = '');
   await push();
 });
@@ -430,6 +444,17 @@ expose('delInv', async id => {
   if(confirm("¿Eliminar inversión?")) { S.inversiones = S.inversiones.filter(x => x.id != id); await push(); }
 });
 
+expose('waCobro', function(id){
+  var p = S.prestamos.find(function(x){return x.id==id;});
+  var c = S.clientes.find(function(x){return x.id==p.cid;});
+  if(!c||!c.tel){alert('Sin telefono registrado');return;}
+  var tel = c.tel.replace(/\D/g,'');
+  var i = (p.pagos||[]).length;
+  var pf = p.fechas&&p.fechas[i]?p.fechas[i]:'';
+  var msg = 'Hola '+c.nom+', le recuerdo su cuota de *$'+p.cuo.toFixed(2)+'*'+(pf?' con fecha *'+pf+'*':'')+'. Por favor coordinar el pago. Gracias!';
+  window.open('https://wa.me/593'+tel.replace(/^0/,'')+'?text='+encodeURIComponent(msg),'_blank');
+});
+
 expose('savePlan', async () => {
   S.plan = { ing: parseFloat(document.getElementById('pl-ing').value), gas: parseFloat(document.getElementById('pl-gas').value) };
   await push();
@@ -515,21 +540,40 @@ function render(){
   document.getElementById('tbl-cli').innerHTML = `<thead><tr><th>Nombre</th><th>Telf</th><th>Acciones</th></tr></thead><tbody>${(S.clientes||[]).map(c=>`<tr><td>${c.nom}</td><td>${c.tel||'—'}</td><td><button class="btn-icon" onclick="editCli('${c.id}')">✏️</button><button class="btn-icon del" onclick="delCli('${c.id}')">🗑️</button></td></tr>`).join('')}</tbody>`;
 
   // Préstamos
-  document.getElementById('tbl-pre').innerHTML = `<thead><tr><th>Cliente</th><th>Total</th><th>Cuotas</th><th>Saldo</th><th>Acción</th></tr></thead><tbody>${(S.prestamos||[]).map(p=>{
-    const c = S.clientes.find(x=>x.id==p.cid);
-    const saldo = (p.cuo*p.nc) - ((p.pagos||[]).length*p.cuo);
-    return `<tr><td>${c?.nom}</td><td>${$m(p.cap + p.int)}</td><td>${p.pagos?.length||0}/${p.nc}</td><td style="color:var(--green)">${$m(saldo)}</td><td><button class="btn-icon edit" onclick="editPre('${p.id}')">✏️</button><button class="btn-icon del" onclick="delPre('${p.id}')">🗑️</button></td></tr>`;
-  }).join('')}</tbody>`;
+  const hoy0 = new Date().setHours(0,0,0,0);
+  const ddFec = function(f){ if(!f) return 999; return Math.round((new Date(f+'T00:00:00').setHours(0,0,0,0)-hoy0)/86400000); };
+  const proxF = function(p){ var i=(p.pagos||[]).length; return p.fechas&&p.fechas[i]?p.fechas[i]:null; };
+  var rows = (S.prestamos||[]).map(function(p){
+    var c = S.clientes.find(function(x){return x.id==p.cid;});
+    var saldo = Math.max(0,(p.cuo*p.nc)-((p.pagos||[]).length*p.cuo));
+    var pf = proxF(p);
+    var dd = ddFec(pf);
+    var badge = saldo<=0?'<span class="bk bk-g">Listo</span>':!pf?'<span style="color:var(--t3)">—</span>':dd<0?'<span class="bk bk-r">'+Math.abs(dd)+'d atraso</span>':dd===0?'<span class="bk bk-gold">HOY</span>':'<span class="bk bk-b">en '+dd+'d</span>';
+    var nom = c?c.nom:'?';
+    return '<tr><td style="font-weight:500">'+nom+'</td><td>'+$m(p.cap)+'</td><td style="color:var(--gold)">'+$m(p.int||0)+'</td><td>'+$m(p.cuo)+'</td><td style="color:var(--t2);font-size:11px">'+(p.frec||'—')+'</td><td>'+((p.pagos||[]).length)+'/'+p.nc+'</td><td style="color:var(--green)">'+$m(saldo)+'</td><td>'+badge+'</td><td><button class="btn-icon" onclick="cobrar(''+p.id+'')">✓</button> <button class="btn-icon edit" onclick="editPre(''+p.id+'')">✏️</button><button class="btn-icon del" onclick="delPre(''+p.id+'')">🗑️</button></td></tr>';
+  }).join('');
+  document.getElementById('tbl-pre').innerHTML = '<thead><tr><th>Cliente</th><th>Capital</th><th>Interés</th><th>Cuota</th><th>Frecuencia</th><th>Pagos</th><th>Saldo</th><th>Estado</th><th>Acción</th></tr></thead><tbody>'+rows+'</tbody>';
 
   // Cobros
-  const pends = (S.prestamos||[]).filter(p => (p.pagos?.length||0) < p.nc);
-  document.getElementById('cob-lista').innerHTML = pends.length ? pends.map(p => {
-    const c = S.clientes.find(x=>x.id==p.cid);
-    return `<div class="ci" style="display:flex;justify-content:space-between;padding:12px;border:1px solid var(--bd);margin-bottom:8px;border-radius:8px;background:var(--s2)">
-      <div><strong>${c?.nom}</strong><br><small>Cuota ${p.pagos?.length+1} de ${p.nc}</small></div>
-      <div style="text-align:right"><div style="color:var(--gold);font-weight:600">${$m(p.cuo)}</div><button class="btn" style="background:var(--green);color:#000;font-size:11px;padding:6px 10px;margin-top:4px" onclick="cobrar('${p.id}')">Cobrar</button></div>
-    </div>`;
-  }).join('') : '<div class="empty">No hay cobros pendientes</div>';
+  var hoy0b = new Date().setHours(0,0,0,0);
+  var ddF2 = function(f){ if(!f) return 999; return Math.round((new Date(f+'T00:00:00').setHours(0,0,0,0)-hoy0b)/86400000); };
+  var proxF2 = function(p){ var i=(p.pagos||[]).length; return p.fechas&&p.fechas[i]?p.fechas[i]:null; };
+  var pends = (S.prestamos||[]).filter(function(p){ return (p.pagos?p.pagos.length:0) < p.nc; });
+  pends.sort(function(a,b){ return ddF2(proxF2(a))-ddF2(proxF2(b)); });
+  if(!pends.length){
+    document.getElementById('cob-lista').innerHTML = '<div class="empty">No hay cobros pendientes</div>';
+  } else {
+    document.getElementById('cob-lista').innerHTML = pends.map(function(p){
+      var c = S.clientes.find(function(x){return x.id==p.cid;});
+      var pf = proxF2(p);
+      var dd = ddF2(pf);
+      var border = dd<0?'var(--red)':dd===0?'var(--gold)':'var(--bd)';
+      var badge = !pf?'':dd<0?'<span class="bk bk-r">'+Math.abs(dd)+'d atraso</span>':dd===0?'<span class="bk bk-gold">HOY</span>':'<span class="bk bk-b">en '+dd+'d</span>';
+      var nom = c?c.nom:'?';
+      var waBtn = c&&c.tel?'<button class="btn-wa" onclick="waCobro(''+p.id+'')" style="font-size:11px;padding:5px 9px;margin-left:4px;border-radius:5px;border:none;background:#25D366;color:#fff;cursor:pointer">WA</button>':'';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid '+border+';margin-bottom:8px;border-radius:8px;background:var(--s2)"><div><strong>'+nom+'</strong> '+badge+'<br><small style="color:var(--t2)">Cuota '+((p.pagos?p.pagos.length:0)+1)+' de '+p.nc+(p.frec?' · '+p.frec:'')+(pf?' · '+pf:'')+'</small></div><div style="text-align:right"><div style="color:var(--gold);font-weight:600;font-size:18px">'+$m(p.cuo)+'</div><button class="btn" style="background:var(--green);color:#000;font-size:11px;padding:6px 10px;margin-top:4px" onclick="cobrar(''+p.id+'')">Cobrar</button> '+waBtn+'</div></div>';
+    }).join('');
+  }
 
   // Caja
   document.getElementById('tbl-caj').innerHTML = `<thead><tr><th>Concepto</th><th>Monto</th><th>Tipo</th><th>Acción</th></tr></thead><tbody>${(S.movimientos||[]).slice().reverse().slice(0,10).map(m=>`<tr><td>${m.con}</td><td>${$m(m.mon)}</td><td><span class="bk ${m.tipo==='entrada'?'bk-g':'bk-r'}">${m.tipo}</span></td><td><button class="btn-icon" onclick="editMov('${m.id}')">✏️</button><button class="btn-icon del" onclick="delMov('${m.id}')">🗑️</button></td></tr>`).join('')}</tbody>`;
