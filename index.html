@@ -78,11 +78,14 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
 .bk-b{background:#0a1a2e;color:var(--blue)}
 .ov{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:999}
 .ov.open{display:flex}
-.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:var(--r);padding:22px;width:90%;max-width:380px}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:var(--r);padding:22px;width:90%;max-width:450px}
 .modal h3{font-family:'DM Serif Display',serif;font-size:18px;color:var(--gold);margin-bottom:12px}
 .modal label{font-size:11px;color:var(--t3);display:block;margin-bottom:4px;margin-top:10px}
 .modal-btns{display:flex;gap:8px;margin-top:16px}
 .modal-btns button{flex:1}
+.caja-saldo{background:var(--s2);border-radius:var(--r2);padding:12px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center}
+.caja-saldo span:first-child{font-size:13px;color:var(--t3)}
+.caja-saldo span:last-child{font-family:'DM Serif Display',serif;font-size:24px;color:var(--green)}
 </style>
 </head>
 <body>
@@ -171,6 +174,16 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
         <button class="btn btn-g" id="btn-add-pre">Desembolsar</button>
       </div>
     </div>
+    <!-- Botón para ajustar saldo de préstamo existente -->
+    <div class="card" style="border-color:var(--gold)">
+      <div class="card-hd"><span class="card-tt">🔧 AJUSTAR PRÉSTAMO EXISTENTE</span></div>
+      <div class="fr">
+        <div class="fg"><label>Seleccionar Préstamo</label><select class="fi" id="ajustar-pre-select"></select></div>
+        <div class="fg"><label>Saldo Pendiente Actual ($)</label><input class="fi" type="number" id="ajustar-saldo-actual" readonly style="background:var(--s3)"></div>
+        <div class="fg"><label>Nuevo Saldo Pendiente ($)</label><input class="fi" type="number" id="ajustar-nuevo-saldo" placeholder="0.00"></div>
+        <button class="btn btn-g" id="btn-ajustar-saldo">Ajustar Saldo</button>
+      </div>
+    </div>
     <div class="card"><div class="tbl-wrap"><table class="tbl" id="tbl-pre"></table></div></div>
   </div>
 
@@ -184,7 +197,10 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
         <button class="btn btn-re" id="btn-caj-sal">Salida</button>
       </div>
     </div>
-    <div class="card"><div class="tbl-wrap"><table class="tbl" id="tbl-caj"></table></div></div>
+    <div class="card">
+      <div class="caja-saldo"><span>💰 SALDO ACTUAL EN CAJA</span><span id="caja-saldo-valor">$0.00</span></div>
+      <div class="tbl-wrap"><table class="tbl" id="tbl-caj"></table></div>
+    </div>
   </div>
 
   <div class="sec" id="sec-socios">
@@ -200,15 +216,49 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
   </div>
 </div>
 
-<div class="ov" id="ov-fecha">
+<!-- Modal para editar préstamo completo -->
+<div class="ov" id="ov-editar-pre">
   <div class="modal">
-    <h3>Mover fecha de cobro</h3>
-    <p style="font-size:12px;color:var(--t2)" id="modal-pre-info"></p>
-    <label>Nueva fecha</label>
-    <input type="date" class="fi" id="modal-nueva-fecha">
+    <h3>✏️ Editar Préstamo</h3>
+    <input type="hidden" id="edit-pre-id">
+    <label>Cliente</label>
+    <select class="fi" id="edit-pre-cli"></select>
+    <label>Capital ($)</label>
+    <input type="number" class="fi" id="edit-pre-cap">
+    <label>Interés ($)</label>
+    <input type="number" class="fi" id="edit-pre-int">
+    <label>Número de Cuotas</label>
+    <input type="number" class="fi" id="edit-pre-nc">
+    <label>Frecuencia</label>
+    <select class="fi" id="edit-pre-frec">
+      <option value="SEMANAL">Semanal</option>
+      <option value="QUINCENAL">Quincenal</option>
+      <option value="MENSUAL">Mensual</option>
+    </select>
+    <label>Cuota Calculada ($)</label>
+    <input type="text" class="fi" id="edit-pre-cuo" readonly style="background:var(--s3)">
     <div class="modal-btns">
-      <button class="btn btn-g" id="modal-ok">Confirmar</button>
-      <button class="btn" style="background:var(--s2);color:var(--t2);border:1px solid var(--bd)" onclick="document.getElementById('ov-fecha').classList.remove('open')">Cancelar</button>
+      <button class="btn btn-g" id="modal-editar-ok">Guardar Cambios</button>
+      <button class="btn" style="background:var(--s2);color:var(--t2);border:1px solid var(--bd)" onclick="document.getElementById('ov-editar-pre').classList.remove('open')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para pago parcial o extra -->
+<div class="ov" id="ov-pago">
+  <div class="modal">
+    <h3>💰 Registrar Pago</h3>
+    <input type="hidden" id="pago-pre-id">
+    <p style="font-size:12px;color:var(--t2);margin-bottom:10px" id="pago-pre-info"></p>
+    <label>Cliente</label>
+    <input type="text" class="fi" id="pago-cliente-nom" readonly>
+    <label>Cuota normal ($)</label>
+    <input type="text" class="fi" id="pago-cuota-normal" readonly>
+    <label>Monto a registrar ($)</label>
+    <input type="number" class="fi" id="pago-monto" placeholder="Ingrese monto pagado" step="0.01">
+    <div class="modal-btns">
+      <button class="btn btn-g" id="modal-pago-ok">Registrar Pago</button>
+      <button class="btn" style="background:var(--s2);color:var(--t2);border:1px solid var(--bd)" onclick="document.getElementById('ov-pago').classList.remove('open')">Cancelar</button>
     </div>
   </div>
 </div>
@@ -226,7 +276,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebas
 import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'tonooz-v1';
 const firebaseConfig = {
   apiKey: "AIzaSyBXmNolXfEv9Epgbg0YMprRpmaJHNsLWdY",
   authDomain: "tonooz.firebaseapp.com",
@@ -239,7 +288,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-const DOC_REF = doc(db, 'artifacts', appId, 'public', 'data', 'finanzas', 'principal');
+const DOC_REF = doc(db, 'artifacts', 'tonooz-v1', 'public', 'data', 'finanzas', 'principal');
 
 let S = { clientes:[], prestamos:[], movimientos:[], socios:[] };
 let unsub = null;
@@ -256,10 +305,14 @@ function generarFechas(fi,frec,nc){
   for(var i=0;i<nc;i++){
     if(frec==='SEMANAL') d=new Date(d.getTime()+7*86400000);
     else if(frec==='QUINCENAL') d=new Date(d.getTime()+15*86400000);
-    else{d=new Date(d);d.setMonth(d.getMonth()+1);}
+    else d=new Date(d.setMonth(d.getMonth()+1));
     fechas.push(d.toISOString().slice(0,10));
   }
   return fechas;
+}
+function calcularSaldoCaja(){
+  if(!S.movimientos) return 0;
+  return S.movimientos.reduce((acc,m)=> acc + (m.tipo==='entrada'? m.mon : -m.mon), 0);
 }
 
 expose('nav',(id,btn)=>{
@@ -290,6 +343,8 @@ expose('editCli',async id=>{
   await push();
 });
 expose('delCli',async id=>{
+  const tienePrestamos = S.prestamos.some(p=>p.cid==id);
+  if(tienePrestamos){ alert("No se puede eliminar cliente con préstamos activos"); return; }
   if(confirm("¿Eliminar cliente?")){S.clientes=S.clientes.filter(x=>x.id!=id); await push();}
 });
 
@@ -300,32 +355,171 @@ expose('addPrestamo',async()=>{
   const nc=parseInt(document.getElementById('np-nc').value)||11;
   const frec=document.getElementById('np-frec').value;
   const fi=document.getElementById('np-fecha').value||hoy();
-  if(!cid||isNaN(cap)) return;
+  if(!cid||isNaN(cap)||cap<=0){ alert("Complete los datos del préstamo"); return; }
   const cuo=(cap+int)/nc;
   const cli=S.clientes.find(x=>x.id==cid);
   const fechas=generarFechas(fi,frec,nc);
   S.prestamos.push({id:createId(),cid,cap,int,cuo,nc,frec,fi,fechas,pagos:[]});
-  registrarCaja('Prestamo a '+(cli?cli.nom:''),cap,'salida');
-  ['np-cap','np-int'].forEach(i=>document.getElementById(i).value='');
+  registrarCaja('Desembolso préstamo a '+(cli?cli.nom:''),cap,'salida');
+  document.getElementById('np-cap').value='';
+  document.getElementById('np-int').value='';
   await push();
 });
+
+expose('editarPreCompleto',async id=>{
+  const p=S.prestamos.find(x=>x.id==id);
+  if(!p) return;
+  document.getElementById('edit-pre-id').value=p.id;
+  const selectCli=document.getElementById('edit-pre-cli');
+  selectCli.innerHTML='<option value="">Seleccionar</option>'+S.clientes.map(c=>`<option value="${c.id}" ${c.id==p.cid?'selected':''}>${c.nom}</option>`).join('');
+  document.getElementById('edit-pre-cap').value=p.cap;
+  document.getElementById('edit-pre-int').value=p.int||0;
+  document.getElementById('edit-pre-nc').value=p.nc;
+  document.getElementById('edit-pre-frec').value=p.frec||'SEMANAL';
+  function recalc(){
+    const cap=parseFloat(document.getElementById('edit-pre-cap').value)||0;
+    const int=parseFloat(document.getElementById('edit-pre-int').value)||0;
+    const nc=parseInt(document.getElementById('edit-pre-nc').value)||1;
+    document.getElementById('edit-pre-cuo').value='$'+((cap+int)/nc).toFixed(2);
+  }
+  recalc();
+  document.getElementById('edit-pre-cap').oninput=recalc;
+  document.getElementById('edit-pre-int').oninput=recalc;
+  document.getElementById('edit-pre-nc').oninput=recalc;
+  document.getElementById('ov-editar-pre').classList.add('open');
+});
+
+document.getElementById('modal-editar-ok').addEventListener('click',async()=>{
+  const id=document.getElementById('edit-pre-id').value;
+  const p=S.prestamos.find(x=>x.id==id);
+  if(p){
+    const nuevoCap=parseFloat(document.getElementById('edit-pre-cap').value)||0;
+    const nuevoInt=parseFloat(document.getElementById('edit-pre-int').value)||0;
+    const nuevoNc=parseInt(document.getElementById('edit-pre-nc').value)||1;
+    const nuevaFrec=document.getElementById('edit-pre-frec').value;
+    const nuevoCli=document.getElementById('edit-pre-cli').value;
+    if(nuevoCli){
+      p.cid=nuevoCli;
+      p.cap=nuevoCap;
+      p.int=nuevoInt;
+      p.nc=nuevoNc;
+      p.cuo=(nuevoCap+nuevoInt)/nuevoNc;
+      p.frec=nuevaFrec;
+      p.fechas=generarFechas(p.fi||hoy(),nuevaFrec,nuevoNc);
+      await push();
+    }
+  }
+  document.getElementById('ov-editar-pre').classList.remove('open');
+});
+
+expose('ajustarSaldoPrestamo',async()=>{
+  const select=document.getElementById('ajustar-pre-select');
+  const id=select.value;
+  if(!id){ alert("Seleccione un préstamo"); return; }
+  const p=S.prestamos.find(x=>x.id==id);
+  if(!p) return;
+  const nuevoSaldo=parseFloat(document.getElementById('ajustar-nuevo-saldo').value);
+  if(isNaN(nuevoSaldo) || nuevoSaldo<0){ alert("Ingrese un saldo válido"); return; }
+  const cuotasPagadasActuales=(p.pagos||[]).length;
+  const totalOriginal=p.cap+(p.int||0);
+  const saldoActual=totalOriginal - (cuotasPagadasActuales * p.cuo);
+  if(nuevoSaldo>saldoActual){
+    // Está pagando menos de lo que debe? No, si nuevoSaldo > saldoActual significa que debe más? 
+    // En realidad si nuevoSaldo > saldoActual, significa que se le está perdonando deuda? Mejor manejarlo como abono extra
+    const abonoExtra=nuevoSaldo-saldoActual;
+    if(confirm(`Este préstamo tiene saldo de ${$m(saldoActual)}. El nuevo saldo es mayor. ¿Desea registrar un ABONO EXTRA de ${$m(abonoExtra)}?`)){
+      registrarCaja(`Abono extra de cliente ${S.clientes.find(c=>c.id==p.cid)?.nom}`,abonoExtra,'entrada');
+      // Ajustamos pagos para reflejar el abono
+      p.pagos=p.pagos||[];
+      p.abonosExtra=p.abonosExtra||[];
+      p.abonosExtra.push({monto:abonoExtra,fecha:hoy()});
+      await push();
+    }
+    document.getElementById('ajustar-nuevo-saldo').value='';
+    return;
+  }
+  if(nuevoSaldo<saldoActual){
+    const diferencia=saldoActual-nuevoSaldo;
+    const cuotasEquivalente=Math.floor(diferencia/p.cuo);
+    if(cuotasEquivalente>0){
+      if(confirm(`Se pagarán ${cuotasEquivalente} cuota(s) automáticamente (${$m(cuotasEquivalente*p.cuo)}). ¿Continuar?`)){
+        for(let i=0;i<cuotasEquivalente;i++){
+          p.pagos.push(hoy());
+          registrarCaja(`Cobro cuota de ${S.clientes.find(c=>c.id==p.cid)?.nom}`,p.cuo,'entrada');
+        }
+        const resto=diferencia-(cuotasEquivalente*p.cuo);
+        if(resto>0.01){
+          if(confirm(`Queda un saldo remanente de ${$m(resto)}. ¿Registrar como pago parcial?`)){
+            p.pagosParciales=p.pagosParciales||[];
+            p.pagosParciales.push({monto:resto,fecha:hoy()});
+            registrarCaja(`Pago parcial de ${S.clientes.find(c=>c.id==p.cid)?.nom}`,resto,'entrada');
+          }
+        }
+        await push();
+      }
+    }
+  }
+  document.getElementById('ajustar-nuevo-saldo').value='';
+  document.getElementById('ajustar-pre-select').value='';
+  document.getElementById('ajustar-saldo-actual').value='';
+});
+
 expose('delPre',async id=>{
   if(confirm("¿Eliminar préstamo?")){S.prestamos=S.prestamos.filter(x=>x.id!=id); await push();}
 });
-expose('editPre',async id=>{
-  const p=S.prestamos.find(x=>x.id==id); if(!p) return;
-  const c=prompt("Nuevo Capital:",p.cap); if(c) p.cap=parseFloat(c);
-  const i=prompt("Nuevo Interés:",p.int||0); if(i!==null) p.int=parseFloat(i)||0;
-  p.cuo=(p.cap+(p.int||0))/p.nc;
-  await push();
-});
-expose('cobrar',async id=>{
+
+expose('abrirPago',async id=>{
   const p=S.prestamos.find(x=>x.id==id);
   const c=S.clientes.find(x=>x.id==p.cid);
-  if(!p.pagos) p.pagos=[];
-  p.pagos.push(hoy());
-  registrarCaja('Cobro cuota: '+(c?c.nom:''),p.cuo,'entrada');
+  document.getElementById('pago-pre-id').value=id;
+  document.getElementById('pago-cliente-nom').value=c?c.nom:'';
+  document.getElementById('pago-cuota-normal').value=$m(p.cuo);
+  document.getElementById('pago-monto').value=p.cuo;
+  const pagosHechos=(p.pagos||[]).length;
+  const totalPagado=pagosHechos*p.cuo;
+  const totalOriginal=p.cap+(p.int||0);
+  const saldoActual=totalOriginal-totalPagado;
+  document.getElementById('pago-pre-info').innerHTML=`<strong>Saldo pendiente: ${$m(saldoActual)}</strong> | Cuota ${pagosHechos+1}/${p.nc}`;
+  document.getElementById('ov-pago').classList.add('open');
+});
+
+document.getElementById('modal-pago-ok').addEventListener('click',async()=>{
+  const id=document.getElementById('pago-pre-id').value;
+  const p=S.prestamos.find(x=>x.id==id);
+  if(!p) return;
+  const monto=parseFloat(document.getElementById('pago-monto').value);
+  if(isNaN(monto)||monto<=0){ alert("Monto inválido"); return; }
+  const c=S.clientes.find(x=>x.id==p.cid);
+  const cuotaNormal=p.cuo;
+  const pagosHechos=(p.pagos||[]).length;
+  const totalOriginal=p.cap+(p.int||0);
+  const totalPagadoHastaAhora=pagosHechos*cuotaNormal;
+  const saldoActual=totalOriginal-totalPagadoHastaAhora;
+  
+  if(Math.abs(monto-cuotaNormal)<0.01){
+    p.pagos.push(hoy());
+    registrarCaja(`Cobro cuota de ${c?.nom}`,cuotaNormal,'entrada');
+  } else if(monto>cuotaNormal){
+    const sobrante=monto-cuotaNormal;
+    if(confirm(`Pago excede la cuota en ${$m(sobrante)}. ¿Registrar como abono extra?`)){
+      p.pagos.push(hoy());
+      p.abonosExtra=p.abonosExtra||[];
+      p.abonosExtra.push({monto:sobrante,fecha:hoy()});
+      registrarCaja(`Cobro cuota + abono de ${c?.nom}`,monto,'entrada');
+    } else { await push(); document.getElementById('ov-pago').classList.remove('open'); return; }
+  } else if(monto<cuotaNormal){
+    if(confirm(`Pago parcial de ${$m(monto)}. ¿Registrar como abono a cuenta?`)){
+      p.pagosParciales=p.pagosParciales||[];
+      p.pagosParciales.push({monto:monto,fecha:hoy()});
+      registrarCaja(`Pago parcial de ${c?.nom}`,monto,'entrada');
+      if(monto>=cuotaNormal*0.5){
+        if(confirm("¿Desea marcar como cuota pagada aunque falte?"));
+      }
+    } else { await push(); document.getElementById('ov-pago').classList.remove('open'); return; }
+  }
   await push();
+  document.getElementById('ov-pago').classList.remove('open');
+  document.getElementById('pago-monto').value='';
 });
 
 expose('abrirMoverFecha',function(id){
@@ -350,7 +544,7 @@ document.getElementById('ov-fecha').addEventListener('click',function(e){if(e.ta
 expose('addMovManual',async t=>{
   const c=document.getElementById('cj-con').value;
   const m=parseFloat(document.getElementById('cj-mon').value);
-  if(!c||isNaN(m)) return;
+  if(!c||isNaN(m)||m<=0){ alert("Complete concepto y monto válido"); return; }
   registrarCaja(c,m,t);
   document.getElementById('cj-con').value=''; document.getElementById('cj-mon').value='';
   await push();
@@ -368,7 +562,7 @@ expose('delMov',async id=>{
 expose('addSocio',async()=>{
   const n=document.getElementById('soc-nom').value;
   const m=parseFloat(document.getElementById('soc-mon').value);
-  if(!n||isNaN(m)) return;
+  if(!n||isNaN(m)||m<=0){ alert("Complete datos"); return; }
   S.socios.push({id:createId(),nom:n,mon:m});
   registrarCaja('Cap. Socio: '+n,m,'entrada');
   document.getElementById('soc-nom').value=''; document.getElementById('soc-mon').value='';
@@ -409,6 +603,7 @@ function load(){
   setSync('wait','Cargando...');
   getDoc(DOC_REF).then(snap=>{
     if(!snap.exists()) setDoc(DOC_REF,S);
+    if(unsub) unsub();
     unsub=onSnapshot(DOC_REF,d=>{
       if(d.exists()){
         S=d.data();
@@ -442,22 +637,31 @@ function registrarCaja(con,mon,tipo){
   S.movimientos.push({id:createId(),fec:hoy(),con,mon:Math.abs(mon),tipo});
 }
 
+function getSaldoPrestamo(p){
+  const pagosNormales=(p.pagos||[]).length;
+  const totalPagadoNormal=pagosNormales*p.cuo;
+  const abonosExtra=(p.abonosExtra||[]).reduce((acc,a)=>acc+a.monto,0);
+  const pagosParciales=(p.pagosParciales||[]).reduce((acc,a)=>acc+a.monto,0);
+  const totalPagado=totalPagadoNormal+abonosExtra+pagosParciales;
+  const totalOriginal=p.cap+(p.int||0);
+  return Math.max(0,totalOriginal-totalPagado);
+}
+
 function render(){
   document.getElementById('top-fecha').textContent=new Date().toLocaleDateString('es-EC',{weekday:'long',day:'numeric',month:'long'});
 
-  const ent=(S.movimientos||[]).filter(m=>m.tipo==='entrada').reduce((a,m)=>a+m.mon,0);
-  const sal=(S.movimientos||[]).filter(m=>m.tipo==='salida').reduce((a,m)=>a+m.mon,0);
-  const caja=ent-sal;
-  const calle=(S.prestamos||[]).reduce((a,p)=>a+Math.max(0,p.cuo*p.nc-((p.pagos||[]).length*p.cuo)),0);
+  const caja=calcularSaldoCaja();
+  const calle=S.prestamos.reduce((a,p)=>a+getSaldoPrestamo(p),0);
+  const totalSocios=(S.socios||[]).reduce((a,s)=>a+s.mon,0);
 
   document.getElementById('res-metrics').innerHTML=
     '<div class="mc"><div class="mc-l">Caja Real</div><div class="mc-v g">'+$m(caja)+'</div></div>'+
     '<div class="mc"><div class="mc-l">En Calle</div><div class="mc-v gold">'+$m(calle)+'</div></div>'+
-    '<div class="mc"><div class="mc-l">Socios</div><div class="mc-v b">'+$m((S.socios||[]).reduce((a,s)=>a+s.mon,0))+'</div></div>';
+    '<div class="mc"><div class="mc-l">Socios</div><div class="mc-v b">'+$m(totalSocios)+'</div></div>';
 
-  var proximos=(S.prestamos||[]).filter(p=>(p.pagos||[]).length<p.nc).map(p=>({p,pf:proxFecha(p),dd:diffDias(proxFecha(p))})).filter(x=>x.dd<=7).sort((a,b)=>a.dd-b.dd);
+  var proximos=S.prestamos.filter(p=>getSaldoPrestamo(p)>0).map(p=>({p,pf:proxFecha(p),dd:diffDias(proxFecha(p))})).filter(x=>x.dd<=7).sort((a,b)=>a.dd-b.dd);
   document.getElementById('res-cobros').innerHTML=proximos.length?proximos.map(function(x){
-    var c=(S.clientes||[]).find(function(cl){return cl.id==x.p.cid;});
+    var c=S.clientes.find(function(cl){return cl.id==x.p.cid;});
     var badge=x.dd<0?'<span class="bk bk-r">'+Math.abs(x.dd)+'d atraso</span>':x.dd===0?'<span class="bk bk-gold">HOY</span>':'<span class="bk bk-b">en '+x.dd+'d</span>';
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)"><div><span style="font-weight:500">'+(c?c.nom:'?')+'</span> '+badge+'</div><span style="color:var(--gold);font-weight:600">'+$m(x.p.cuo)+'</span></div>';
   }).join(''):'<div class="empty">Sin cobros próximos</div>';
@@ -477,29 +681,47 @@ function render(){
 
   document.getElementById('tbl-pre').innerHTML='<thead><tr><th>Cliente</th><th>Capital</th><th>Interés</th><th>Cuota</th><th>Frecuencia</th><th>Pagos</th><th>Saldo</th><th>Próx. cobro</th><th>Acciones</th></tr></thead><tbody>'+
     (S.prestamos||[]).map(function(p){
-      var c=(S.clientes||[]).find(function(x){return x.id==p.cid;});
-      var saldo=Math.max(0,(p.cuo*p.nc)-((p.pagos||[]).length*p.cuo));
+      var c=S.clientes.find(function(x){return x.id==p.cid;});
+      var saldo=getSaldoPrestamo(p);
       var pf=proxFecha(p); var dd=diffDias(pf);
       var badge=saldo<=0?'<span class="bk bk-g">Listo</span>':!pf?'—':dd<0?'<span class="bk bk-r">'+Math.abs(dd)+'d</span>':dd===0?'<span class="bk bk-gold">HOY</span>':'<span class="bk bk-b">'+dd+'d</span>';
-      return '<tr><td style="font-weight:500">'+(c?c.nom:'?')+'</td><td>'+$m(p.cap)+'</td><td style="color:var(--gold)">'+$m(p.int||0)+'</td><td>'+$m(p.cuo)+'</td><td style="font-size:11px;color:var(--t2)">'+(p.frec||'—')+'</td><td>'+((p.pagos||[]).length)+'/'+p.nc+'</td><td style="color:var(--green)">'+$m(saldo)+'</td><td>'+(pf?pf:'—')+' '+badge+'</td><td><button class="btn-icon" onclick="cobrar(\''+p.id+'\')" title="Cobrar">✓</button><button class="btn-icon" onclick="abrirMoverFecha(\''+p.id+'\')" title="Mover fecha">📅</button><button class="btn-icon" onclick="editPre(\''+p.id+'\')" title="Editar">✏️</button><button class="btn-icon del" onclick="delPre(\''+p.id+'\')" title="Eliminar">🗑️</button></td></tr>';
+      return '<tr><td style="font-weight:500">'+(c?c.nom:'?')+'</td><td>'+$m(p.cap)+'</td><td style="color:var(--gold)">'+$m(p.int||0)+'</td><td>'+$m(p.cuo)+'</td><td style="font-size:11px;color:var(--t2)">'+(p.frec||'—')+'</td><td>'+((p.pagos||[]).length)+'/'+p.nc+'</td><td style="color:var(--green)">'+$m(saldo)+'</td><td>'+(pf?pf:'—')+' '+badge+'</td><td><button class="btn-icon" onclick="abrirPago(\''+p.id+'\')" title="Pagar">💰</button><button class="btn-icon" onclick="abrirMoverFecha(\''+p.id+'\')" title="Mover fecha">📅</button><button class="btn-icon" onclick="editarPreCompleto(\''+p.id+'\')" title="Editar todo">✏️</button><button class="btn-icon del" onclick="delPre(\''+p.id+'\')" title="Eliminar">🗑️</button></td></tr>';
     }).join('')+'</tbody>';
 
-  var pends=(S.prestamos||[]).filter(function(p){return(p.pagos?p.pagos.length:0)<p.nc;});
+  // Selector para ajustar saldo
+  const ajustarSelect=document.getElementById('ajustar-pre-select');
+  const preActivo=document.getElementById('ajustar-pre-select').value;
+  ajustarSelect.innerHTML='<option value="">Seleccionar préstamo</option>'+S.prestamos.map(p=>{
+    const c=S.clientes.find(x=>x.id==p.cid);
+    const saldo=getSaldoPrestamo(p);
+    return `<option value="${p.id}" ${p.id==preActivo?'selected':''}>${c?.nom} - Saldo: ${$m(saldo)}</option>`;
+  }).join('');
+  ajustarSelect.onchange=function(){
+    const id=this.value;
+    if(id){
+      const p=S.prestamos.find(x=>x.id==id);
+      if(p) document.getElementById('ajustar-saldo-actual').value=getSaldoPrestamo(p);
+      else document.getElementById('ajustar-saldo-actual').value='';
+    } else document.getElementById('ajustar-saldo-actual').value='';
+  };
+
+  var pends=S.prestamos.filter(function(p){return getSaldoPrestamo(p)>0;});
   pends.sort(function(a,b){return diffDias(proxFecha(a))-diffDias(proxFecha(b));});
   document.getElementById('cob-lista').innerHTML=pends.length?pends.map(function(p){
-    var c=(S.clientes||[]).find(function(x){return x.id==p.cid;});
+    var c=S.clientes.find(function(x){return x.id==p.cid;});
     var pf=proxFecha(p); var dd=diffDias(pf);
     var border=dd<0?'var(--red)':dd===0?'var(--gold)':'var(--bd)';
     var badge=!pf?'':dd<0?'<span class="bk bk-r">'+Math.abs(dd)+'d atraso</span>':dd===0?'<span class="bk bk-gold">HOY</span>':'<span class="bk bk-b">en '+dd+'d</span>';
     var waBtn=(c&&c.tel)?'<button onclick="waCobro(\''+p.id+'\')" style="background:#25D366;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;margin-left:4px">📲 WA</button>':'';
-    var moverBtn='<button onclick="abrirMoverFecha(\''+p.id+'\')" style="background:var(--s3);color:var(--t2);border:1px solid var(--bd);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;margin-left:4px">📅 Mover</button>';
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid '+border+';margin-bottom:8px;border-radius:8px;background:var(--s2)"><div><strong>'+(c?c.nom:'?')+'</strong> '+badge+'<br><small style="color:var(--t2)">Cuota '+((p.pagos?p.pagos.length:0)+1)+' de '+p.nc+(p.frec?' · '+p.frec:'')+(pf?' · '+pf:'')+'</small></div><div style="text-align:right"><div style="color:var(--gold);font-weight:600;font-size:18px">'+$m(p.cuo)+'</div><div style="margin-top:6px"><button class="btn" style="background:var(--green);color:#000;font-size:11px;padding:6px 10px" onclick="cobrar(\''+p.id+'\')">✓ Cobrar</button>'+waBtn+moverBtn+'</div></div></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid '+border+';margin-bottom:8px;border-radius:8px;background:var(--s2)"><div><strong>'+(c?c.nom:'?')+'</strong> '+badge+'<br><small style="color:var(--t2)">Cuota '+((p.pagos?p.pagos.length:0)+1)+' de '+p.nc+(p.frec?' · '+p.frec:'')+(pf?' · '+pf:'')+'</small></div><div style="text-align:right"><div style="color:var(--gold);font-weight:600;font-size:18px">'+$m(p.cuo)+'</div><div style="margin-top:6px"><button class="btn" style="background:var(--green);color:#000;font-size:11px;padding:6px 10px" onclick="abrirPago(\''+p.id+'\')">💰 Cobrar</button>'+waBtn+'</div></div></div>';
   }).join(''):'<div class="empty">No hay cobros pendientes</div>';
 
   document.getElementById('tbl-caj').innerHTML='<thead><tr><th>Concepto</th><th>Monto</th><th>Tipo</th><th>Acción</th></tr></thead><tbody>'+
     (S.movimientos||[]).slice().reverse().slice(0,15).map(function(m){
       return '<tr><td>'+m.con+'</td><td>'+$m(m.mon)+'</td><td><span class="bk '+(m.tipo==='entrada'?'bk-g':'bk-r')+'">'+m.tipo+'</span></td><td><button class="btn-icon" onclick="editMov(\''+m.id+'\')">✏️</button><button class="btn-icon del" onclick="delMov(\''+m.id+'\')">🗑️</button></td></tr>';
     }).join('')+'</tbody>';
+  
+  document.getElementById('caja-saldo-valor').innerHTML=$m(caja);
 
   document.getElementById('tbl-soc').innerHTML='<thead><tr><th>Socio</th><th>Monto</th><th>Acción</th></tr></thead><tbody>'+
     (S.socios||[]).map(function(s){
@@ -508,12 +730,13 @@ function render(){
 }
 
 expose('waCobro',function(id){
-  var p=(S.prestamos||[]).find(function(x){return x.id==id;});
-  var c=(S.clientes||[]).find(function(x){return x.id==p.cid;});
+  var p=S.prestamos.find(function(x){return x.id==id;});
+  var c=S.clientes.find(function(x){return x.id==p.cid;});
   if(!c||!c.tel){alert('Sin teléfono registrado. Edita el cliente primero.');return;}
   var tel=c.tel.replace(/\D/g,'');
   var pf=proxFecha(p)||'';
-  var msg='Hola '+c.nom+', le recuerdo su cuota de *$'+p.cuo.toFixed(2)+'*'+(pf?' con fecha *'+pf+'*':'')+'. Por favor coordinar el pago. Gracias!';
+  var saldo=getSaldoPrestamo(p);
+  var msg='Hola '+c.nom+', su cuota es de *$'+p.cuo.toFixed(2)+'*'+(pf?' con fecha *'+pf+'*':'')+'. Saldo pendiente: $'+saldo.toFixed(2)+'. Por favor coordinar el pago. Gracias!';
   window.open('https://wa.me/593'+tel.replace(/^0/,'')+'?text='+encodeURIComponent(msg),'_blank');
 });
 
@@ -526,6 +749,7 @@ document.getElementById('nav-socios').addEventListener('click',function(){nav('s
 
 document.getElementById('btn-add-cli').addEventListener('click',addCliente);
 document.getElementById('btn-add-pre').addEventListener('click',addPrestamo);
+document.getElementById('btn-ajustar-saldo').addEventListener('click',ajustarSaldoPrestamo);
 document.getElementById('btn-caj-ent').addEventListener('click',function(){addMovManual('entrada');});
 document.getElementById('btn-caj-sal').addEventListener('click',function(){addMovManual('salida');});
 document.getElementById('btn-add-soc').addEventListener('click',addSocio);
