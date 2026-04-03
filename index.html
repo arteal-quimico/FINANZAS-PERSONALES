@@ -278,10 +278,10 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
     </div>
     <!-- Ajuste de pagos ya realizados -->
     <div style="margin-top:12px;padding:10px;background:var(--s3);border-radius:8px;border:1px solid var(--bd2)">
-      <div style="font-size:11px;color:var(--gold);margin-bottom:6px;font-weight:600">⚙ AJUSTE DE PAGOS YA REALIZADOS</div>
-      <div style="font-size:12px;color:var(--t2);margin-bottom:8px">Si ya existen cobros previos que no están registrados, indícalo aquí. Esto ajustará el contador de cuotas pagadas y el saldo pendiente.</div>
-      <label>Cuotas ya pagadas (ajuste)</label>
-      <input type="number" class="fi" id="ep-pagos-adj" min="0" placeholder="0">
+      <div style="font-size:11px;color:var(--gold);margin-bottom:6px;font-weight:600">⚙ MONTO YA COBRADO (ajuste)</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:8px">Coloca el total en dólares que ya cobraste antes de registrar este préstamo en el sistema.</div>
+      <label>Ya cobrado ($)</label>
+      <input type="number" class="fi" id="ep-pagos-adj" min="0" step="0.01" placeholder="0.00">
       <div style="font-size:11px;color:var(--t3);margin-top:4px" id="ep-pagos-info"></div>
     </div>
     <div class="modal-btns">
@@ -422,20 +422,16 @@ expose('editPre',function(id){
     const nc=parseInt(document.getElementById('ep-nc').value)||1;
     const frec=document.getElementById('ep-frec').value;
     const fi=document.getElementById('ep-fi').value||hoy();
-    const pagosAdj=parseInt(document.getElementById('ep-pagos-adj').value)||0;
+    const montoPrevio=parseFloat(document.getElementById('ep-pagos-adj').value)||0;
     const cuo=(cap+int)/nc;
     p.cap=cap; p.int=int; p.nc=nc; p.frec=frec; p.fi=fi; p.cuo=cuo;
     // Regenerar fechas
     p.fechas=generarFechas(fi,frec,nc);
-    // Ajustar pagos: si el usuario pone más o menos pagos de los actuales
-    const pagosAct=(p.pagos||[]).length;
-    if(pagosAdj>pagosAct){
-      // Añadir pagos artificiales por los ya realizados fuera del sistema
-      for(var i=pagosAct;i<pagosAdj;i++){
-        p.pagos.push({monto:cuo, fec:hoy(), ajuste:true});
-      }
-    } else if(pagosAdj<pagosAct){
-      p.pagos=p.pagos.slice(0,pagosAdj);
+    // Ajuste por monto en dólares ya cobrado: reemplazamos los pagos de ajuste previos
+    // y colocamos un único pago de ajuste con el monto indicado
+    p.pagos=(p.pagos||[]).filter(function(pg){return !pg.ajuste;});
+    if(montoPrevio>0){
+      p.pagos.unshift({monto:montoPrevio, fec:p.fi||hoy(), ajuste:true});
     }
     await push();
     document.getElementById('ov-edit-pre').classList.remove('open');
@@ -449,8 +445,11 @@ function actualizarEpCuota(){
   document.getElementById('ep-cuota-calc').textContent=$m((cap+int)/nc);
 }
 function actualizarEpPagosInfo(p){
-  const pagosAct=(p.pagos||[]).length;
-  document.getElementById('ep-pagos-info').textContent='Actualmente registradas: '+pagosAct+' cuota(s) pagadas de '+p.nc+'.';
+  const cobrado=(p.pagos||[]).reduce(function(a,pg){return a+(typeof pg==='object'?pg.monto:p.cuo);},0);
+  const ajuste=(p.pagos||[]).find(function(pg){return pg.ajuste;});
+  document.getElementById('ep-pagos-info').textContent='Total cobrado registrado: '+$m(cobrado)+(ajuste?' (ajuste: '+$m(ajuste.monto)+')':'')+' · Saldo: '+$m(saldoPrestamo(p));
+  if(ajuste) document.getElementById('ep-pagos-adj').value=ajuste.monto.toFixed(2);
+  else document.getElementById('ep-pagos-adj').value='';
 }
 
 ['ep-cap','ep-int','ep-nc'].forEach(function(eid){
