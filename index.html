@@ -340,12 +340,6 @@ const $m=n=>'$'+(+n||0).toFixed(2);
 const hoy=()=>new Date().toISOString().slice(0,10);
 const HOY_MS=new Date().setHours(0,0,0,0);
 function diffDias(f){if(!f)return 999;return Math.round((new Date(f+'T00:00:00').setHours(0,0,0,0)-HOY_MS)/86400000);}
-function proxFecha(p){
-  var i=(p.pagos||[]).length;
-  if(p.fechas&&p.fechas[i])return p.fechas[i];
-  if(p.fi&&p.frec&&p.nc){var calculadas=generarFechas(p.fi,p.frec,p.nc);if(calculadas[i])return calculadas[i];}
-  return null;
-}
 function generarFechas(fi,frec,nc){
   var fechas=[];var d=new Date(fi+'T12:00:00');
   for(var i=0;i<nc;i++){
@@ -357,8 +351,8 @@ function generarFechas(fi,frec,nc){
   return fechas;
 }
 
-// ─── SISTEMA NUEVO: préstamos con p.cuotas[] ─────────────────────────────
-// Solo préstamos nuevos usan este sistema (los que tienen p.cuotas)
+// === SISTEMA NUEVO: prestamos con p.cuotas[] ===
+// Solo prestamos nuevos usan este sistema (los que tienen p.cuotas)
 // Cada cuota: {idx, vence, montoDebe, pagado, fechaPago}
 
 function esNuevoSistema(p){ return Array.isArray(p.cuotas); }
@@ -422,7 +416,7 @@ function aplicarPagoNuevo(p, monto, fechaPago){
     restante=Math.round((restante-abono)*100)/100;
   }
 }
-// ─────────────────────────────────────────────────────────────────────────
+// =================================================================
 
 // calcular total en vivo cuando usuario edita cuota, cuota final o nc
 function calcTotal(){
@@ -562,8 +556,7 @@ expose('cobrar',function(id){
     const idx=cuotaPend.idx;
     const falta=Math.round((cuotaPend.montoDebe-cuotaPend.pagado)*100)/100;
     const vencidas=p.cuotas.filter(function(c){return c.pagado<c.montoDebe&&diffDias(c.vence)<0;});
-    var infoExtra=vencidas.length>1?'
-⚠️ Tiene '+vencidas.length+' cuotas vencidas — el pago abona a la más antigua primero':'';
+    var infoExtra=vencidas.length>1?' Tiene '+vencidas.length+' cuotas vencidas (pago va a la mas antigua primero)':'';
     document.getElementById('cobro-info').textContent=(c?c.nom:'?')+' — Cuota '+(idx+1)+' de '+p.nc+' · vence '+cuotaPend.vence+' · debe '+$m(falta)+infoExtra;
     document.getElementById('cobro-monto').value=falta.toFixed(2);
     actualizarDiferenciaCobro(falta,falta);
@@ -825,29 +818,22 @@ function render(){
       var resumenVenc='';
       if(vencidas.length>1){
         var totalVenc=vencidas.reduce(function(a,q){return a+(q.montoDebe-q.pagado);},0);
-        resumenVenc='<div style="margin-top:4px;padding:4px 6px;background:rgba(255,92,92,0.1);border-radius:4px;font-size:11px;color:var(--red)">⚠️ '+vencidas.length+' cuotas vencidas sin cobrar — total: '+$m(totalVenc)+'</div>';
+        resumenVenc='<div style="margin-top:4px;padding:4px 6px;background:rgba(255,92,92,0.1);border-radius:4px;font-size:11px;color:var(--red)">'+vencidas.length+' cuotas vencidas — total: '+$m(totalVenc)+'</div>';
       }
-      return '<div style="padding:12px;border:1px solid '+border+';margin-bottom:8px;border-radius:8px;background:var(--s2)">'+
-        '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
-        '<div><strong>'+(c?c.nom:'?')+'</strong> '+badge+
-        '<br><small style="color:var(--t2)">Cuota '+(idx+1)+' de '+p.nc+' · '+p.frec+' · vence '+(pf||'—')+'</small>'+
-        '<br><small style="color:var(--t3)">Saldo total: '+$m(saldo)+'</small>'+resumenVenc+'</div>'+
-        '<div style="text-align:right;min-width:90px"><div style="color:var(--gold);font-weight:600;font-size:18px">'+$m(falta)+'</div>'+
-        '<div style="margin-top:6px"><button class="btn" style="background:var(--green);color:#000;font-size:11px;padding:6px 10px" onclick="cobrar(\''+p.id+'\')">✓ Cobrar</button>'+waBtn+'</div></div></div></div>';
+      return '<div style="padding:12px;border:1px solid '+border+';margin-bottom:8px;border-radius:8px;background:var(--s2)"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><strong>'+(c?c.nom:'?')+'</strong> '+badge+'<br><small style="color:var(--t2)">Cuota '+(idx+1)+' de '+p.nc+' · '+p.frec+' · vence '+(pf||'—')+'</small><br><small style="color:var(--t3)">Saldo total: '+$m(saldo)+'</small>'+resumenVenc+'</div><div style="text-align:right;min-width:90px"><div style="color:var(--gold);font-weight:600;font-size:18px">'+$m(falta)+'</div><div style="margin-top:6px"><button class="btn" style="background:var(--green);color:#000;font-size:11px;padding:6px 10px" onclick="cobrar(\''+p.id+'\')">Cobrar</button> '+waBtn+'</div></div></div></div>';
     }
 
-    // Sistema viejo
     var pf=proxFecha(p);var dd=diffDias(pf);
     var border=dd<0?'var(--red)':dd===0?'var(--gold)':'var(--bd)';
     var badge=!pf?'':dd<0?'<span class="bk bk-r">'+Math.abs(dd)+'d atraso</span>':dd===0?'<span class="bk bk-gold">HOY</span>':'<span class="bk bk-b">en '+dd+'d</span>';
-    var moverBtn='<button onclick="abrirMoverFecha(\''+p.id+'\')" style="background:var(--s3);color:var(--t2);border:1px solid var(--bd);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;margin-left:4px">📅 Mover</button>';
+    var moverBtn='<button onclick="abrirMoverFecha(\''+p.id+'\')" style="background:var(--s3);color:var(--t2);border:1px solid var(--bd);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;margin-left:4px">Mover</button>';
     var cuotaIdx=(p.pagos||[]).length;
     var montoCuota=getCuotaMonto(p,cuotaIdx);
     var esUltima=(cuotaIdx===p.nc-1&&p.cuoFinal&&p.cuoFinal>0);
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid '+border+';margin-bottom:8px;border-radius:8px;background:var(--s2)"><div><strong>'+(c?c.nom:'?')+'</strong> '+badge+'<br><small style="color:var(--t2)">Cuota '+(cuotaIdx+1)+' de '+p.nc+(p.frec?' · '+p.frec:'')+(pf?' · '+pf:'')+(esUltima?' · <span style="color:var(--orange)">ÚLTIMA CUOTA</span>':'')+'</small><br><small style="color:var(--t3)">Saldo: '+$m(saldo)+'</small></div><div style="text-align:right"><div style="color:var(--gold);font-weight:600;font-size:18px">'+$m(montoCuota)+(esUltima?'<span style="font-size:11px;color:var(--orange)"> ⭐</span>':'')+'</div><div style="margin-top:6px"><button class="btn" style="background:var(--green);color:#000;font-size:11px;padding:6px 10px" onclick="cobrar(\''+p.id+'\')">✓ Cobrar</button>'+waBtn+moverBtn+'</div></div></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid '+border+';margin-bottom:8px;border-radius:8px;background:var(--s2)"><div><strong>'+(c?c.nom:'?')+'</strong> '+badge+'<br><small style="color:var(--t2)">Cuota '+(cuotaIdx+1)+' de '+p.nc+(p.frec?' · '+p.frec:'')+(pf?' · '+pf:'')+(esUltima?' ULTIMA':'')+'</small><br><small style="color:var(--t3)">Saldo: '+$m(saldo)+'</small></div><div style="text-align:right"><div style="color:var(--gold);font-weight:600;font-size:18px">'+$m(montoCuota)+'</div><div style="margin-top:6px"><button class="btn" style="background:var(--green);color:#000;font-size:11px;padding:6px 10px" onclick="cobrar(\''+p.id+'\')">Cobrar</button> '+waBtn+' '+moverBtn+'</div></div></div>';
   }).join(''):'<div class="empty">No hay cobros pendientes</div>';
 
-  document.getElementById('tbl-caj').innerHTML='<thead><tr><th>Fecha</th><th>Concepto</th><th>Monto</th><th>Tipo</th><th>Acción</th></tr></thead><tbody>'+
+    document.getElementById('tbl-caj').innerHTML='<thead><tr><th>Fecha</th><th>Concepto</th><th>Monto</th><th>Tipo</th><th>Acción</th></tr></thead><tbody>'+
     (S.movimientos||[]).slice().reverse().map(function(m){
       return '<tr><td style="font-size:11px;color:var(--t2);white-space:nowrap">'+(m.fec||'—')+'</td><td>'+m.con+'</td><td>'+$m(m.mon)+'</td><td><span class="bk '+(m.tipo==='entrada'?'bk-g':'bk-r')+'">'+m.tipo+'</span></td><td><button class="btn-icon" onclick="editMov(\''+m.id+'\')">✏️</button><button class="btn-icon del" onclick="delMov(\''+m.id+'\')">🗑️</button></td></tr>';
     }).join('')+'</tbody>';
