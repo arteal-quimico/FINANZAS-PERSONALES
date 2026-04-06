@@ -340,7 +340,12 @@ const $m=n=>'$'+(+n||0).toFixed(2);
 const hoy=()=>new Date().toISOString().slice(0,10);
 const HOY_MS=new Date().setHours(0,0,0,0);
 function diffDias(f){if(!f)return 999;return Math.round((new Date(f+'T00:00:00').setHours(0,0,0,0)-HOY_MS)/86400000);}
-function proxFecha(p){var i=(p.pagos||[]).length;if(p.fechas&&p.fechas[i])return p.fechas[i];return null;}
+function proxFecha(p){
+  var i=(p.pagos||[]).length;
+  if(p.fechas&&p.fechas[i])return p.fechas[i];
+  if(p.fi&&p.frec&&p.nc){var calculadas=generarFechas(p.fi,p.frec,p.nc);if(calculadas[i])return calculadas[i];}
+  return null;
+}
 function generarFechas(fi,frec,nc){
   var fechas=[];var d=new Date(fi+'T12:00:00');
   for(var i=0;i<nc;i++){
@@ -545,7 +550,13 @@ expose('abrirMoverFecha',function(id){
   document.getElementById('modal-ok').onclick=async function(){
     const nf=document.getElementById('modal-nueva-fecha').value;
     if(!nf){alert('Selecciona una fecha');return;}
-    if(!p.fechas)p.fechas=generarFechas(p.fi||hoy(),p.frec||'SEMANAL',p.nc);
+    if(!p.fechas){
+      // Si no tiene fechas, generarlas desde la fecha ORIGINAL del préstamo
+      // nunca desde hoy, para no distorsionar el calendario
+      var fechaBase=p.fi||hoy();
+      p.fechas=generarFechas(fechaBase,p.frec||'SEMANAL',p.nc);
+    }
+    // Solo cambiar ESA cuota específica, las demás quedan intactas
     p.fechas[i]=nf;
     await push();
     document.getElementById('ov-fecha').classList.remove('open');
