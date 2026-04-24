@@ -182,7 +182,6 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
           <label style="color:var(--gold)">Cuota por cobrar ($) — editable</label>
           <input class="fi" type="number" id="np-cuo" placeholder="0.00" step="0.01" style="font-size:18px;font-weight:600;color:var(--green)">
         </div>
-        <!-- NUEVO: Cuota final opcional -->
         <div class="fg">
           <label style="color:var(--orange)">Cuota final ($) <span style="color:var(--t3);font-size:10px">— opcional, si es diferente</span></label>
           <input class="fi" type="number" id="np-cuo-final" placeholder="dejar vacío si es igual" step="0.01" style="color:var(--orange)">
@@ -273,7 +272,6 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-
     <label>Capital ($)</label><input type="number" class="fi" id="ep-cap" step="0.01">
     <label>Interés ($)</label><input type="number" class="fi" id="ep-int" step="0.01">
     <label>Cuota ($) — editable</label><input type="number" class="fi" id="ep-cuo" step="0.01">
-    <!-- NUEVO: Cuota final en modal editar -->
     <label>Cuota final ($) <span style="color:var(--t3);font-size:10px">— opcional, dejar vacío si es igual a la cuota normal</span></label>
     <input type="number" class="fi" id="ep-cuo-final" step="0.01" placeholder="dejar vacío si es igual">
     <label>Nº de Cuotas</label><input type="number" class="fi" id="ep-nc">
@@ -351,10 +349,6 @@ function generarFechas(fi,frec,nc){
   return fechas;
 }
 
-// === SISTEMA NUEVO: prestamos con p.cuotas[] ===
-// Solo prestamos nuevos usan este sistema (los que tienen p.cuotas)
-// Cada cuota: {idx, vence, montoDebe, pagado, fechaPago}
-
 function esNuevoSistema(p){ return Array.isArray(p.cuotas); }
 
 function generarCuotas(fi, frec, nc, cuo, cuoFinal){
@@ -403,7 +397,6 @@ function getCuotaMonto(p, idx){
   return p.cuo;
 }
 
-// Aplica el pago a la cuota más antigua primero (solo sistema nuevo)
 function aplicarPagoNuevo(p, monto, fechaPago){
   var restante=monto;
   for(var i=0;i<p.cuotas.length&&restante>0.009;i++){
@@ -416,9 +409,7 @@ function aplicarPagoNuevo(p, monto, fechaPago){
     restante=Math.round((restante-abono)*100)/100;
   }
 }
-// =================================================================
 
-// calcular total en vivo cuando usuario edita cuota, cuota final o nc
 function calcTotal(){
   var cuo=parseFloat(document.getElementById('np-cuo').value)||0;
   var cuoFinal=parseFloat(document.getElementById('np-cuo-final').value)||0;
@@ -464,12 +455,10 @@ expose('addPrestamo',async()=>{
   const frec=document.getElementById('np-frec').value;
   const fi=document.getElementById('np-fecha').value||hoy();
   const cuo=parseFloat(document.getElementById('np-cuo').value);
-  // NUEVO: cuota final opcional
   const cuoFinalRaw=parseFloat(document.getElementById('np-cuo-final').value);
   const cuoFinal=isNaN(cuoFinalRaw)?0:cuoFinalRaw;
   if(!cid||isNaN(cap)||isNaN(cuo)||cuo<=0){alert('Completa todos los campos incluyendo la cuota');return;}
   const cli=S.clientes.find(x=>x.id==cid);
-  // Sistema nuevo: cuotas indexadas con fecha fija
   const cuotas=generarCuotas(fi,frec,nc,cuo,cuoFinal);
   S.prestamos.push({id:createId(),cid,cap,int,cuo,cuoFinal,nc,frec,fi,cuotas});
   registrarCaja('Prestamo a '+(cli?cli.nom:''),cap,'salida');
@@ -489,7 +478,6 @@ expose('editPre',function(id){
   document.getElementById('ep-cap').value=p.cap||0;
   document.getElementById('ep-int').value=p.int||0;
   document.getElementById('ep-cuo').value=p.cuo||0;
-  // NUEVO: cargar cuota final
   document.getElementById('ep-cuo-final').value=(p.cuoFinal&&p.cuoFinal>0)?p.cuoFinal.toFixed(2):'';
   document.getElementById('ep-nc').value=p.nc||11;
   document.getElementById('ep-frec').value=p.frec||'SEMANAL';
@@ -503,7 +491,6 @@ expose('editPre',function(id){
     const cap=parseFloat(document.getElementById('ep-cap').value)||0;
     const int=parseFloat(document.getElementById('ep-int').value)||0;
     const cuo=parseFloat(document.getElementById('ep-cuo').value)||0;
-    // NUEVO: guardar cuota final al editar
     const cuoFinalRaw=parseFloat(document.getElementById('ep-cuo-final').value);
     const cuoFinal=isNaN(cuoFinalRaw)?0:cuoFinalRaw;
     const nc=parseInt(document.getElementById('ep-nc').value)||1;
@@ -549,7 +536,7 @@ expose('cobrar',function(id){
   const c=S.clientes.find(x=>x.id==p.cid);
   const saldo=saldoPrestamo(p);
 
-  // Sistema nuevo: muestra cuotas vencidas pendientes
+  // Sistema nuevo: cuotas indexadas
   if(esNuevoSistema(p)){
     const cuotaPend=primeraCuotaPendiente(p);
     if(!cuotaPend){alert('Este préstamo ya está saldado.');return;}
@@ -573,11 +560,23 @@ expose('cobrar',function(id){
     return;
   }
 
-  // Sistema viejo (préstamos antiguos — sin cambios)
+  // ----------------------------------------------------------------
+  // Sistema viejo (préstamos antiguos sin cuotas[])
+  // FIX: asegurar que p.fechas exista antes de mostrar el modal,
+  // usando siempre la fecha original p.fi como base, nunca hoy().
+  // Esto evita que una cuota atrasada o adelantada muestre la fecha
+  // de la siguiente cuota en lugar de la que realmente corresponde.
+  // ----------------------------------------------------------------
+  if(!p.fechas){
+    p.fechas = generarFechas(p.fi || hoy(), p.frec || 'SEMANAL', p.nc);
+  }
   const cuotaIdx=(p.pagos||[]).length;
   const montoCuota=getCuotaMonto(p,cuotaIdx);
   const esUltima=(cuotaIdx===p.nc-1);
-  document.getElementById('cobro-info').textContent=(c?c.nom:'?')+' — Cuota '+(cuotaIdx+1)+' de '+p.nc+(esUltima?' ⭐ ÚLTIMA':'')+' — Cuota: '+$m(montoCuota)+' — Saldo: '+$m(saldo);
+  const fechaCuota=p.fechas[cuotaIdx]||'—';
+  const ddCuota=diffDias(p.fechas[cuotaIdx]);
+  const estadoFecha=ddCuota<0?' ⚠ '+Math.abs(ddCuota)+'d de atraso':ddCuota===0?' — HOY':' — en '+ddCuota+'d';
+  document.getElementById('cobro-info').textContent=(c?c.nom:'?')+' — Cuota '+(cuotaIdx+1)+' de '+p.nc+(esUltima?' ⭐ ÚLTIMA':'')+' · vence '+fechaCuota+estadoFecha+' — Cuota: '+$m(montoCuota)+' — Saldo: '+$m(saldo);
   document.getElementById('cobro-monto').value=montoCuota.toFixed(2);
   actualizarDiferenciaCobro(montoCuota,montoCuota);
   document.getElementById('ov-cobro').classList.add('open');
@@ -588,10 +587,11 @@ expose('cobrar',function(id){
     if(!p.pagos)p.pagos=[];
     p.pagos.push({monto:montoCobrado,fec:hoy()});
     registrarCaja('Cobro: '+(c?c.nom:'')+' (cuota '+(cuotaIdx+1)+')',montoCobrado,'entrada');
-    await push();
+    await push(); // p.fechas ya está en S.prestamos, se guarda automáticamente
     document.getElementById('ov-cobro').classList.remove('open');
   };
 });
+
 function actualizarDiferenciaCobro(monto,cuota){
   const div=document.getElementById('cobro-diferencia');
   const diff=monto-cuota;
@@ -613,12 +613,9 @@ expose('abrirMoverFecha',function(id){
     const nf=document.getElementById('modal-nueva-fecha').value;
     if(!nf){alert('Selecciona una fecha');return;}
     if(!p.fechas){
-      // Si no tiene fechas, generarlas desde la fecha ORIGINAL del préstamo
-      // nunca desde hoy, para no distorsionar el calendario
       var fechaBase=p.fi||hoy();
       p.fechas=generarFechas(fechaBase,p.frec||'SEMANAL',p.nc);
     }
-    // Solo cambiar ESA cuota específica, las demás quedan intactas
     p.fechas[i]=nf;
     await push();
     document.getElementById('ov-fecha').classList.remove('open');
@@ -768,7 +765,6 @@ function render(){
   document.getElementById('res-cobros').innerHTML=proximos.length?proximos.map(function(x){
     var c=(S.clientes||[]).find(function(cl){return cl.id==x.p.cid;});
     var badge=x.dd<0?'<span class="bk bk-r">'+Math.abs(x.dd)+'d atraso</span>':x.dd===0?'<span class="bk bk-gold">HOY</span>':'<span class="bk bk-b">en '+x.dd+'d</span>';
-    // NUEVO: mostrar cuota correcta en resumen
     var cuotaIdx=(x.p.pagos||[]).length;
     var montoCuota=getCuotaMonto(x.p,cuotaIdx);
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)"><div><span style="font-weight:500">'+(c?c.nom:'?')+'</span> '+badge+'</div><span style="color:var(--gold);font-weight:600">'+$m(montoCuota)+'</span></div>';
@@ -794,7 +790,6 @@ function render(){
       var pf=proxFecha(p);var dd=diffDias(pf);
       var badge=saldo<=0?'<span class="bk bk-g">Listo</span>':!pf?'—':dd<0?'<span class="bk bk-r">'+Math.abs(dd)+'d</span>':dd===0?'<span class="bk bk-gold">HOY</span>':'<span class="bk bk-b">'+dd+'d</span>';
       var cobrado=(p.pagos||[]).reduce(function(a,pg){return a+(typeof pg==='object'?pg.monto:p.cuo);},0);
-      // NUEVO: mostrar cuota final si existe
       var cuotaLabel=$m(p.cuo)+(p.cuoFinal&&p.cuoFinal>0?'<br><small style="color:var(--orange)">última: '+$m(p.cuoFinal)+'</small>':'');
       return '<tr><td style="font-weight:500">'+(c?c.nom:'?')+'</td><td>'+$m(p.cap)+'</td><td style="color:var(--gold)">'+cuotaLabel+'</td><td style="font-size:11px;color:var(--t2)">'+(p.frec||'—')+'</td><td>'+((p.pagos||[]).length)+'/'+p.nc+'<br><small style="color:var(--t3)">'+$m(cobrado)+' cobrado</small></td><td style="color:var(--green)">'+$m(saldo)+'</td><td>'+(pf?pf:'—')+' '+badge+'</td><td><button class="btn-icon" onclick="cobrar(\''+p.id+'\')" title="Cobrar">✓</button><button class="btn-icon" onclick="abrirMoverFecha(\''+p.id+'\')" title="Mover fecha">📅</button><button class="btn-icon" onclick="editPre(\''+p.id+'\')" title="Editar">✏️</button><button class="btn-icon del" onclick="delPre(\''+p.id+'\')" title="Eliminar">🗑️</button></td></tr>';
     }).join('')+'</tbody>';
@@ -833,7 +828,7 @@ function render(){
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid '+border+';margin-bottom:8px;border-radius:8px;background:var(--s2)"><div><strong>'+(c?c.nom:'?')+'</strong> '+badge+'<br><small style="color:var(--t2)">Cuota '+(cuotaIdx+1)+' de '+p.nc+(p.frec?' · '+p.frec:'')+(pf?' · '+pf:'')+(esUltima?' ULTIMA':'')+'</small><br><small style="color:var(--t3)">Saldo: '+$m(saldo)+'</small></div><div style="text-align:right"><div style="color:var(--gold);font-weight:600;font-size:18px">'+$m(montoCuota)+'</div><div style="margin-top:6px"><button class="btn" style="background:var(--green);color:#000;font-size:11px;padding:6px 10px" onclick="cobrar(\''+p.id+'\')">Cobrar</button> '+waBtn+' '+moverBtn+'</div></div></div>';
   }).join(''):'<div class="empty">No hay cobros pendientes</div>';
 
-    document.getElementById('tbl-caj').innerHTML='<thead><tr><th>Fecha</th><th>Concepto</th><th>Monto</th><th>Tipo</th><th>Acción</th></tr></thead><tbody>'+
+  document.getElementById('tbl-caj').innerHTML='<thead><tr><th>Fecha</th><th>Concepto</th><th>Monto</th><th>Tipo</th><th>Acción</th></tr></thead><tbody>'+
     (S.movimientos||[]).slice().reverse().map(function(m){
       return '<tr><td style="font-size:11px;color:var(--t2);white-space:nowrap">'+(m.fec||'—')+'</td><td>'+m.con+'</td><td>'+$m(m.mon)+'</td><td><span class="bk '+(m.tipo==='entrada'?'bk-g':'bk-r')+'">'+m.tipo+'</span></td><td><button class="btn-icon" onclick="editMov(\''+m.id+'\')">✏️</button><button class="btn-icon del" onclick="delMov(\''+m.id+'\')">🗑️</button></td></tr>';
     }).join('')+'</tbody>';
